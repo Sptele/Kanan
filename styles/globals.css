@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Anek+Malayalam:wght@300&family=Raleway:wght@200&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Anek+Malayalam:wght@300&family=Raleway:wght@200&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -13,7 +13,12 @@
 		@apply h-full;
 	}
 
-	h1, h2, h3, h4, h5, h6 {
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
 		@apply font-title;
 	}
 
@@ -28,7 +33,7 @@
 	h3 {
 		@apply text-4xl;
 	}
-	
+
 	h4 {
 		@apply text-3xl;
 	}
@@ -41,8 +46,11 @@
 		@apply text-xl;
 	}
 
-	div, p, a, span {						
-		@apply text-base;	
+	div,
+	p,
+	a,
+	span {
+		@apply text-base;
 		@apply font-body;
 	}
 
@@ -52,5 +60,20 @@
 
 	* {
 		@apply box-border;
+	}
+}
+
+@layer components {
+	/* https://stackoverflow.com/a/61653016 */
+	.open-card-profile-picture {
+		width: 3rem;
+		height: 3rem;
+		border-radius: 50%;
+		background: darkgreen;
+		font-size: 1.5rem;
+		color: #fff;
+		text-align: center;
+		line-height: 3rem;
+		margin: .5rem 0;
 	}
 }
