@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Anek+Malayalam:wght@300&family=Raleway:wght@200&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -5,18 +7,50 @@
 @layer base {
 	html,
 	body {
-		padding: 0;
-		margin: 0;
-		font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
-			Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+		@apply p-0;
+		@apply m-0;
+
+		@apply h-full;
+	}
+
+	h1, h2, h3, h4, h5, h6 {
+		@apply font-title;
+	}
+
+	h1 {
+		@apply text-6xl;
+	}
+
+	h2 {
+		@apply text-5xl;
+	}
+
+	h3 {
+		@apply text-4xl;
+	}
+	
+	h4 {
+		@apply text-3xl;
+	}
+
+	h5 {
+		@apply text-2xl;
+	}
+
+	h6 {
+		@apply text-xl;
+	}
+
+	div, p, a, span {						
+		@apply text-base;	
+		@apply font-body;
 	}
 
 	a {
-		color: inherit;
-		text-decoration: none;
+		@apply no-underline;
 	}
 
 	* {
-		box-sizing: border-box;
+		@apply box-border;
 	}
 }
