@@ -61,9 +61,9 @@ function CommentRenderer({ comments }) {
 function MembersIcons({ members }) {
 	return (
 		<div className="flex h-8">
-			{members.map((member) => (
+			{members.length > 0 ? members.map((member) => (
 				<ProfilePicture name={member.name} />
-			))}
+			)) : <h1 className="ml-4">no members :(</h1>}
 		</div>
 	);
 }
@@ -98,7 +98,7 @@ function OpenedCard({ data }) {
 		>
 			<div className="w-[75%]">
 				<div className="flex flex-row">
-					<h1>{data.title} &#9679; </h1>
+					<h1 className="closed-card-title">{data.title} &#9679; </h1>
 					<MembersIcons members={data.members} />
 				</div>
 				<h4>
@@ -157,11 +157,12 @@ function ClosedCard({ data }) {
 
 	const timeState = getTimeState(data.dueDate);
 
+
 	return (
 		<button
 			onClick={() => setIsOpen(!isOpen)}
 			className={
-				"bg-white rounded-md p-2 m-4 text-center h-14" +
+				"bg-white rounded-md p-3 mx-4 mt-4 text-center min-h-14" +
 				(data.isUrgent || timeState === -1
 					? " border-l-red border-l-4 "
 					: "") +
@@ -170,7 +171,7 @@ function ClosedCard({ data }) {
 				(timeState === 1 ? " border-l-[green] border-l-4" : "")
 			}
 		>
-			<p className=" leading-4">{data.title}</p>
+			<p className="closed-card-title leading-4">{data.title}</p>
 			<p
 				className={
 					"text-xs text-slate-500 " +

@@ -49,17 +49,35 @@
 	div,
 	p,
 	a,
-	span {
+	span,
+	label,
+	textarea {
 		@apply text-base;
 		@apply font-body;
 	}
 
 	a {
 		@apply no-underline;
+		@apply text-cyan-500;
 	}
 
 	* {
 		@apply box-border;
+	}
+
+	input[type="text"] {
+		@apply border-black;
+		@apply border-2;
+		@apply m-2;
+	}
+
+	div#card-creator-prev, .closed-card-title {
+		@apply whitespace-pre-wrap;
+		@apply break-words;
+	}
+
+	button, a, input[type="button"] {
+		@apply cursor-pointer;
 	}
 }
 
@@ -74,6 +92,6 @@
 		color: #fff;
 		text-align: center;
 		line-height: 3rem;
-		margin: .5rem 0;
+		margin: 0.5rem 0;
 	}
 }

@@ -1,25 +1,41 @@
 import Card from "./Card";
 import getTimeState from "./getTimeState";
+import { createCard } from "../components/CreationFactory";
 import { useState } from "react";
+import CardCreator from "../components/CardCreator";
 
-function CardRenderer({ cards }) {
+function CardRenderer({ cards, showCardCreator, setShowCardCreator }) {
 	return (
-		<div className="flex flex-col gap-2">
-			{cards.length > 0 ? (
-				cards.map((obj, i) => (
-					<Card key={obj.title + "-card-" + i} data={obj} />
-				))
-			) : (
-				<button className="bg-[#000000bd] text-center rounded-md text-white m-4 p-4 h-14 ">
-					Add a Card +
-				</button>
-			)}
+		<div className="flex flex-col">
+			<button
+				className="bg-[#000000bd] text-center rounded-md text-white mx-4 mt-4 p-4 h-14 "
+				onClick={() => setShowCardCreator(!showCardCreator)}
+			>
+				Add a Card +
+			</button>
+
+			{cards.map((obj, i) => (
+				<Card key={obj.title + "-card-" + i} data={obj} />
+			))}
 		</div>
 	);
 }
 
-export default function List({ title, cards }) {
+export default function List({ title, icards }) {
+	const [cards, setCards] = useState(icards);
 	const [isOpen, setIsOpen] = useState(true);
+	const [showCardCreator, setShowCardCreator] = useState(false);
+
+	if (showCardCreator) {
+		return (
+			<CardCreator
+				cards={cards}
+				icards={icards}
+				setCards={setCards}
+				setShown={setShowCardCreator}
+			/>
+		);
+	}
 
 	let bgColor = "bg-black";
 
@@ -42,31 +58,57 @@ export default function List({ title, cards }) {
 	return (
 		<div
 			className={
-				"bg-gray rounded-xl min-h-[75vh] relative " +
-				(isOpen ? "w-[15rem]" : " w-10")
+				"bg-gray rounded-xl relative " +
+				(isOpen ? "w-[15rem] pb-4 text-center h-[75vh]" : "min-h-[75vh] w-10")
 			}
 		>
-			{isOpen ? (
-				<CardRenderer cards={cards} />
-			) : (
-				<h6
-					className={
-						`text-white text-center m-2 p-1 rounded-full ` + bgColor
-					}
-				>
-					{cards.length > 0 ? cards.length : <button>+</button>}
-				</h6>
-			)}
 			<div
 				className={
 					isOpen
-						? "bottom-1 left-16 m-auto absolute w-[10rem]"
+						? " overflow-y-auto max-h-[75vh] overflow-x-hidden "
+						: ""
+				}
+			>
+				{isOpen ? (
+					<CardRenderer
+						cards={cards}
+						showCardCreator={showCardCreator}
+						setShowCardCreator={setShowCardCreator}
+					/>
+				) : (
+					<h6
+						className={
+							`text-white text-center m-2 p-1 rounded-full ` +
+							bgColor
+						}
+					>
+						{cards.length > 0 ? (
+							cards.length
+						) : (
+							<button
+								onClick={() =>
+									setShowCardCreator(!showCardCreator)
+								}
+							>
+								+
+							</button>
+						)}
+					</h6>
+				)}
+			</div>
+			<div
+				className={
+					isOpen
+						? "bottom-0 m-auto absolute w-[15rem]"
 						: "absolute bottom-8 right-[-2.5rem] origin-center rotate-90 w-[7rem]"
 				}
 			>
 				<button
 					onClick={() => setIsOpen(!isOpen)}
-					className="inline-block"
+					className={
+						"inline-block" +
+						(isOpen ? " bg-gray p-4 rounded-xl m-auto w-[15rem]" : "")
+					}
 				>
 					<h6>▶ {title}</h6>
 				</button>

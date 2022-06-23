@@ -10,7 +10,7 @@ function ListRenderer({ listsR }) {
 		<List
 			key={obj.title + "-list-" + i}
 			title={obj.title}
-			cards={obj.cards}
+			icards={obj.cards}
 		/>
 	));
 
@@ -30,36 +30,22 @@ export default function Board() {
 		{
 			title: "List One",
 			cards: [
-				firstCard,
-				
 			],
 		},
 		{
 			title: "List Two",
 			cards: [
-				firstCard
 			],
 		},
 	]);
 
-	/*
-		structure of lists:
-		{
-			title: String,
-			cards: [
-				{
-					title: String,
-				}
-			]
-		}
-	*/
 
 	return (
 		<Layout title="Kanan Board" description="desc">
 			<div className="bg-teal min-h-screen grid grid-rows-board">
 				<Link href="/board">
 					<a>
-						<h1 className="text-center">Kanan</h1>
+						<h1 className="text-center text-black">Kanan</h1>
 					</a>
 				</Link>
 				<div className="bg-green rounded-t-3xl p-4">
