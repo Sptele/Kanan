@@ -1,12 +1,24 @@
 import { useState, useReducer, createContext, useContext } from "react";
 import Image from "next/image";
 import ProfilePicture from "../components/ProfilePicture";
-import getTimeState from "./getTimeState";
+import getTimeState from "../util/get-time-state";
 import {
 	createMember,
 	createComment,
 	createCard,
-} from "../components/CreationFactory";
+} from "../util/creation-factory";
+
+import {
+	TitleUpdater,
+	DescriptionUpdater,
+	DueDateUpdater,
+	ListUpdater,
+} from "./card-updaters";
+
+import { ListsContext } from "../pages/board";
+
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 /*
 	{
@@ -61,15 +73,23 @@ function CommentRenderer({ comments }) {
 function MembersIcons({ members }) {
 	return (
 		<div className="flex h-8">
-			{members.length > 0 ? members.map((member) => (
-				<ProfilePicture name={member.name} />
-			)) : <h1 className="ml-4">no members :(</h1>}
+			{members.length > 0 ? (
+				members.map((member) => <ProfilePicture name={member.name} />)
+			) : (
+				<h1 className="ml-4">no members :(</h1>
+			)}
 		</div>
 	);
 }
 
 function OpenedCard({ data }) {
 	const [isOpen, setIsOpen] = useContext(OpenContext);
+	const [lists, setLists] = useContext(ListsContext);
+
+	const [isTitleModalOpen, setIsTitleModalOpen] = useState(false);
+	const [isDescModalOpen, setIsDescModalOpen] = useState(false);
+	const [isDueDateModalOpen, setIsDueDateModalOpen] = useState(false);
+	const [isListModalOpen, setIsListModalOpen] = useState(false);
 	const [_, forceUpdate] = useReducer((x) => x + 1, 0);
 
 	const ActionButton = ({ children, onClick }) => {
@@ -86,69 +106,97 @@ function OpenedCard({ data }) {
 	//const timeState = getTimeState(data.dueDate);
 	const timeState = 2;
 	return (
-		<div
-			className={
-				"bg-white rounded-[2.5rem] fixed z-50 top-[2vh] left-[2vh] min-w-[98vw] min-h-[96vh] p-4 flex flex-row gap-4" +
-				(data.isUrgent || timeState === -1
-					? " border-red border-4 "
-					: "") +
-				(timeState === 0 ? " border-orange-500 border-4" : "") +
-				(timeState === 1 ? " border-[green] border-4" : "")
-			}
-		>
-			<div className="w-[75%]">
-				<div className="flex flex-row">
-					<h1 className="closed-card-title">{data.title} &#9679; </h1>
-					<MembersIcons members={data.members} />
+		<>
+			{isTitleModalOpen ? (
+				<TitleUpdater data={data} setShown={setIsTitleModalOpen} />
+			) : null}
+			{isDescModalOpen ? (
+				<DescriptionUpdater data={data} setShown={setIsDescModalOpen} />
+			) : null}
+
+			{isDueDateModalOpen ? (
+				<DueDateUpdater data={data} setShown={setIsDueDateModalOpen} />
+			) : null}
+
+			{isListModalOpen ? (
+				<ListUpdater data={data} lists={lists} setShown={setIsListModalOpen} />
+			) : null}
+
+			<div
+				className={
+					"bg-white rounded-[2.5rem] fixed z-40 top-[2vh] left-[2vh] min-w-[98vw] min-h-[96vh] p-4 flex flex-row gap-4 text-left" +
+					(data.isUrgent || timeState === -1
+						? " border-red border-4 "
+						: "") +
+					(timeState === 0 ? " border-orange-500 border-4" : "") +
+					(timeState === 1 ? " border-[green] border-4" : "")
+				}
+			>
+				<div className="w-[75%]">
+					<div className="flex flex-row">
+						<h1 className="closed-card-title">
+							{data.title} &#9679;
+						</h1>
+						<MembersIcons members={data.members} />
+					</div>
+					<h4>
+						Created: {data.creationDate.toLocaleString()} | Due:{" "}
+						<strong className={timeState === -1 ? "text-red" : ""}>
+							{data.dueDate.toLocaleString()}
+						</strong>
+					</h4>
+					<p className="text-lg border-black border-4 border-solid p-1 w-[100%]">
+						<strong>Description:</strong>
+						<ReactMarkdown
+							children={data.description}
+							remarkPlugins={[remarkGfm]}
+						/>
+					</p>
+					<div className="flex flex-row gap-1 mt-2">
+						<h6 className="mt-2">Comments:</h6>
+						<button className="p-2 px-4 bg-yellow border-2 border-black rounded-xl font-extrabold">
+							+
+						</button>
+					</div>
+					<CommentRenderer comments={data.comments} />
 				</div>
-				<h4>
-					Created: {data.creationDate.toLocaleString()} | Due:{" "}
-					<strong className={(timeState === -1 ? "text-red" : "")}>{data.dueDate.toLocaleString()}</strong>
-				</h4>
-				<p className="text-lg border-black border-4 border-solid p-1 w-[100%]">
-					<strong>Description:</strong>
-					<br /> {data.description}
-				</p>
-				<div className="flex flex-row gap-1 mt-2">
-					<h6 className="mt-2">Comments:</h6>
-					<button className="p-2 px-4 bg-yellow border-2 border-black rounded-xl font-extrabold">
-						+
-					</button>
+				<div className="flex flex-col gap-2">
+					<ActionButton onClick={() => {}}>Add Members</ActionButton>
+					<ActionButton
+						onClick={() => {
+							setIsTitleModalOpen(!isTitleModalOpen);
+						}}
+					>
+						Set Title
+					</ActionButton>
+					<ActionButton
+						onClick={() => {
+							setIsDescModalOpen(!isDescModalOpen);
+						}}
+					>
+						Set Description
+					</ActionButton>
+					<ActionButton
+						onClick={() =>
+							setIsDueDateModalOpen(!isDueDateModalOpen)
+						}
+					>
+						Set Due Date
+					</ActionButton>
+					<ActionButton onClick={() => setIsListModalOpen(!isListModalOpen)}>Change List</ActionButton>
+					<ActionButton
+						onClick={() => {
+							data.archived = !data.archived;
+						}}
+					>
+						{data.archived ? "UnArchive" : "Archive"}
+					</ActionButton>
+					<ActionButton onClick={() => setIsOpen(!isOpen)}>
+						Close Card
+					</ActionButton>
 				</div>
-				<CommentRenderer comments={data.comments} />
 			</div>
-			<div className="flex flex-col gap-2">
-				<ActionButton onClick={() => {}}>Add Members</ActionButton>
-				<ActionButton
-					onClick={() => {
-						data.title = prompt(
-							"What's the new card name?",
-							data.title
-						);
-						forceUpdate();
-					}}
-				>
-					Set Title
-				</ActionButton>
-				<ActionButton
-					onClick={() => {
-						data.description = prompt(
-							"What's the new description?",
-							data.description
-						);
-						forceUpdate();
-					}}
-				>
-					Set Description
-				</ActionButton>
-				<ActionButton onClick={() => {}}>Set Due Date</ActionButton>
-				<ActionButton onClick={() => {}}>Change List</ActionButton>
-				<ActionButton onClick={() => {}}>Archive</ActionButton>
-				<ActionButton onClick={() => setIsOpen(!isOpen)}>
-					Close Card
-				</ActionButton>
-			</div>
-		</div>
+		</>
 	);
 }
 
@@ -156,7 +204,6 @@ function ClosedCard({ data }) {
 	const [isOpen, setIsOpen] = useContext(OpenContext);
 
 	const timeState = getTimeState(data.dueDate);
-
 
 	return (
 		<button

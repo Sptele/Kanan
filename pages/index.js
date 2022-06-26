@@ -1,8 +1,39 @@
-import Head from "next/head";
-import Image from "next/image";
-import Layout from "../components/Layout";
-import CardCreator from "../components/CardCreator";
+import clientPromise from "../lib/mongodb";
 
-export default function Home() {
-	return <CardCreator cards={[]} />
+export default function Top({ movies }) {
+  return (
+    <div>
+      <h1>Top 1000 Movies of All Time</h1>
+      <p>
+        <small>(According to Metacritic)</small>
+      </p>
+      <ul>
+        {movies.map((movie) => (
+          <li>
+            <h2>{movie.title}</h2>
+            <h3>{movie.metacritic}</h3>
+            <p>{movie.plot}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export async function getStaticProps() {
+  console.log(clientPromise);
+  const db = await clientPromise
+
+  const movies = await db
+    .collection("movies")
+    .find({})
+    .sort({ metacritic: -1 })
+    .limit(1000)
+    .toArray();
+
+  return {
+    props: {
+      movies: JSON.parse(JSON.stringify(movies)),
+    },
+  };
 }

@@ -2,21 +2,25 @@ import { useState, useReducer } from "react";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { createCard } from "../components/CreationFactory";
+import { createCard } from "../util/creation-factory";
 import { DateTimePicker } from "react-rainbow-components";
+import randId from "../util/random-id";
 
-function DescriptionInput({ description, onChange }) {
+function DescriptionInput({ description, onChange, onKeyDown }) {
 	return (
 		<textarea
 			value={description}
 			onChange={onChange}
 			className="border-black border-2 mb-2 w-[100%] h-[20rem] p-2"
 			id="card-creator-desc"
+			onKeyDown={onKeyDown}
 		/>
 	);
 }
 
-export default function CardCreator({ cards, icards, setCards, setShown }) {
+export default function CardCreator({ cards, icards, listId, setCards, setShown }) {
+	const id = randId();
+
 	const [data, setData] = useState(
 		createCard(
 			"",
@@ -34,20 +38,52 @@ export default function CardCreator({ cards, icards, setCards, setShown }) {
 			[],
 			[],
 			false,
-			false
+			false,
+			id,
+			listId
 		)
 	);
 
+	const [isTitleError, setIsTitleError] = useState(false);
+
+	const submit = () => {
+		if (!data.title || data.title === "" || data.title === " ") {
+			// Missing title
+			setIsTitleError(true);
+			return;
+		} else setIsTitleError(false);
+
+		setCards(cards.concat(data));
+		icards.push(data);
+		setShown(false);
+	};
+
+	const handleKeyPress = (e) => {
+		escape(e);
+		if (e.key === "Enter") submit();
+	};
+
+	const escape = (e) => {
+		if (e.key === "Escape") setShown(false);
+	}
+
 	return (
-		<form className="p-4 fixed bg-white w-full h-full top-0 left-0 z-[100] overflow-auto">
-			<div className="m-auto w-[25rem]">
-				<label htmlFor="card-creator-title">Title:</label>
+		<form
+			className="p-4 fixed bg-white w-full h-full top-0 left-0 z-[100] overflow-auto"
+			onKeyDown={handleKeyPress}
+		>
+			<div className="m-auto w-[30rem]">
+				<label htmlFor="card-creator-title">
+					<span className="required">* </span>Title:
+				</label>
 				<input
 					type="text"
 					name="title"
 					id="card-creator-title"
-					className="p-1"
-					onChange={(e) =>
+					className={"p-1"}
+					onChange={(e) => {
+						if (isTitleError) setIsTitleError(false);
+						
 						setData(
 							createCard(
 								e.target.value,
@@ -57,10 +93,13 @@ export default function CardCreator({ cards, icards, setCards, setShown }) {
 								data.members,
 								data.comments,
 								data.isArchived,
-								data.isUrgent
+								data.isUrgent,
+								id,
+								listId
 							)
 						)
-					}
+					}}
+					onKeyDown={handleKeyPress}
 				/>
 				<input
 					type="checkbox"
@@ -76,10 +115,13 @@ export default function CardCreator({ cards, icards, setCards, setShown }) {
 								data.members,
 								data.comments,
 								data.isArchived,
-								value
+								value,
+								id,
+								listId
 							)
 						)
 					}
+					onKeyDown={handleKeyPress}
 				/>{" "}
 				<label htmlFor="card-creator-urgent">Is Urgent?</label>
 			</div>
@@ -107,10 +149,13 @@ export default function CardCreator({ cards, icards, setCards, setShown }) {
 									data.members,
 									data.comments,
 									data.isArchived,
-									data.isUrgent
+									data.isUrgent,
+									id,
+									listId
 								)
 							)
 						}
+						onKeyDown={escape}
 					/>
 				</div>
 				<div>
@@ -145,7 +190,9 @@ export default function CardCreator({ cards, icards, setCards, setShown }) {
 								data.members,
 								data.comments,
 								data.isArchived,
-								data.isUrgent
+								data.isUrgent,
+								id,
+								listId
 							)
 						)
 					}
@@ -169,7 +216,9 @@ export default function CardCreator({ cards, icards, setCards, setShown }) {
 								data.members,
 								data.comments,
 								data.isArchived,
-								data.isUrgent
+								data.isUrgent,
+								id,
+								listId
 							)
 						)
 					}
@@ -186,18 +235,21 @@ export default function CardCreator({ cards, icards, setCards, setShown }) {
 					value="Cancel"
 					className="bg-red text-white p-4 rounded-full m-auto"
 					onClick={() => setShown(false)}
+					onKeyDown={handleKeyPress}
 				/>
-				<input
-					type="button"
-					value="Create Card"
-					className="bg-black text-white p-4 rounded-full m-auto"
-					onClick={() => {
-
-						setCards(cards.concat(data));
-						icards.push(data);
-						setShown(false);
-					}}
-				/>
+				<div className="flex flex-col m-auto mt-2">
+					<input
+						type="button"
+						value="Create Card"
+						className={
+							"bg-black text-white p-4 rounded-full" +
+							(isTitleError ? " border-2 border-red" : "")
+						}
+						onClick={submit}
+						onKeyDown={handleKeyPress}
+					/>
+					<p className={"text-xs text-red" + (isTitleError ? " visible" : " invisible")}>You must enter the title!</p>
+				</div>
 			</div>
 		</form>
 	);

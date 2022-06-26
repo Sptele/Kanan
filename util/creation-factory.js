@@ -1,3 +1,5 @@
+import randId from "./random-id";
+
 /**
  * Creates a member object. Similar to `createCard()`, this is an abstraction for making this object.
  * @param {String} name The name of the member.
@@ -6,8 +8,8 @@
  * @param {String} linkToProfilePicture A URL link as a String to the profile picture.
  * @returns an Object representing this data.
  */
-export function createMember(name, biography, role) {
-	return { name, biography, role };
+export function createMember(name, biography, role, id=randId()) {
+	return { id, name, biography, role };
 }
 
 /**
@@ -17,8 +19,8 @@ export function createMember(name, biography, role) {
  * @param {Date} timeStamp The date that this comment was created.
  * @returns
  */
-export function createComment(sender, content, timeStamp) {
-	return { sender, content, timeStamp };
+export function createComment(sender, content, timeStamp, id=randId()) {
+	return { id, sender, content, timeStamp };
 }
 
 /**
@@ -42,9 +44,12 @@ export function createCard(
 	members,
 	comments,
 	isArchived,
-	isUrgent
+	isUrgent,
+	id=randId(),
+	listId
 ) {
 	return {
+		id,
 		title,
 		description,
 		creationDate,
@@ -53,5 +58,6 @@ export function createCard(
 		comments,
 		isArchived,
 		isUrgent,
+		listId
 	};
 }

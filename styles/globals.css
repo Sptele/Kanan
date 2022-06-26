@@ -82,16 +82,21 @@
 }
 
 @layer components {
-	/* https://stackoverflow.com/a/61653016 */
+	/* https://stackoverflow.com/a/61653016, converted to use tailwind classes */
 	.open-card-profile-picture {
-		width: 3rem;
-		height: 3rem;
-		border-radius: 50%;
-		background: darkgreen;
-		font-size: 1.5rem;
-		color: #fff;
-		text-align: center;
-		line-height: 3rem;
-		margin: 0.5rem 0;
+		@apply w-12;
+		@apply h-12;
+		@apply rounded-[50%];
+		@apply bg-[darkgreen];
+		@apply text-2xl;
+		@apply text-[white];
+		@apply text-center;
+		@apply leading-[3rem];
+		@apply my-2;
+		@apply mx-0;
+	}
+
+	.required {
+		@apply text-red;
 	}
 }
