@@ -45,8 +45,8 @@ export function createCard(
 	comments,
 	isArchived,
 	isUrgent,
+	listId,
 	id=randId(),
-	listId
 ) {
 	return {
 		id,

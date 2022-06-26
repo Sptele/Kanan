@@ -18,7 +18,13 @@ function DescriptionInput({ description, onChange, onKeyDown }) {
 	);
 }
 
-export default function CardCreator({ cards, icards, listId, setCards, setShown }) {
+export default function CardCreator({
+	cards,
+	icards,
+	listId,
+	setCards,
+	setShown,
+}) {
 	const id = randId();
 
 	const [data, setData] = useState(
@@ -39,8 +45,8 @@ export default function CardCreator({ cards, icards, listId, setCards, setShown 
 			[],
 			false,
 			false,
-			id,
-			listId
+			listId,
+			id
 		)
 	);
 
@@ -53,6 +59,7 @@ export default function CardCreator({ cards, icards, listId, setCards, setShown 
 			return;
 		} else setIsTitleError(false);
 
+		console.log(data);
 		setCards(cards.concat(data));
 		icards.push(data);
 		setShown(false);
@@ -65,7 +72,7 @@ export default function CardCreator({ cards, icards, listId, setCards, setShown 
 
 	const escape = (e) => {
 		if (e.key === "Escape") setShown(false);
-	}
+	};
 
 	return (
 		<form
@@ -83,7 +90,7 @@ export default function CardCreator({ cards, icards, listId, setCards, setShown 
 					className={"p-1"}
 					onChange={(e) => {
 						if (isTitleError) setIsTitleError(false);
-						
+
 						setData(
 							createCard(
 								e.target.value,
@@ -94,10 +101,10 @@ export default function CardCreator({ cards, icards, listId, setCards, setShown 
 								data.comments,
 								data.isArchived,
 								data.isUrgent,
-								id,
-								listId
+								listId,
+								id
 							)
-						)
+						);
 					}}
 					onKeyDown={handleKeyPress}
 				/>
@@ -116,8 +123,8 @@ export default function CardCreator({ cards, icards, listId, setCards, setShown 
 								data.comments,
 								data.isArchived,
 								value,
-								id,
-								listId
+								listId,
+								id
 							)
 						)
 					}
@@ -150,8 +157,8 @@ export default function CardCreator({ cards, icards, listId, setCards, setShown 
 									data.comments,
 									data.isArchived,
 									data.isUrgent,
-									id,
-									listId
+									listId,
+									id
 								)
 							)
 						}
@@ -191,8 +198,8 @@ export default function CardCreator({ cards, icards, listId, setCards, setShown 
 								data.comments,
 								data.isArchived,
 								data.isUrgent,
-								id,
-								listId
+								listId,
+								id
 							)
 						)
 					}
@@ -217,8 +224,8 @@ export default function CardCreator({ cards, icards, listId, setCards, setShown 
 								data.comments,
 								data.isArchived,
 								data.isUrgent,
-								id,
-								listId
+								listId,
+								id
 							)
 						)
 					}
@@ -248,7 +255,14 @@ export default function CardCreator({ cards, icards, listId, setCards, setShown 
 						onClick={submit}
 						onKeyDown={handleKeyPress}
 					/>
-					<p className={"text-xs text-red" + (isTitleError ? " visible" : " invisible")}>You must enter the title!</p>
+					<p
+						className={
+							"text-xs text-red" +
+							(isTitleError ? " visible" : " invisible")
+						}
+					>
+						You must enter the title!
+					</p>
 				</div>
 			</div>
 		</form>

@@ -1,5 +1,6 @@
-import { list } from "postcss";
 import { DateTimePicker } from "react-rainbow-components";
+import { CallbackContext } from "../pages/board";
+import { useContext } from "react";
 
 export function TitleUpdater({ data, setShown }) {
 	return (
@@ -80,6 +81,8 @@ export function DueDateUpdater({ data, setShown }) {
 }
 
 export function ListUpdater({ data, lists, setShown }) {
+	const forceUpdate = useContext(CallbackContext);
+
 	return (
 		<div className="bg-red p-4 fixed bottom-0 left-0 w-full z-50 mb-[18rem] border-y-2 border-y-black">
 			<label htmlFor="list-updater" className="text-white">
@@ -89,30 +92,38 @@ export function ListUpdater({ data, lists, setShown }) {
 				id="list-updater"
 				className="grid grid-cols-6 grid-rows-6 gap-1"
 			>
-				{
-					lists.map((list) => {
-						let bgColor = "bg-white";
-						if (list.id === data.listId) {
-							bgColor = "bg-red";
-						}
-						return (
-							<button
-								className={"text-black p-2 rounded-xl " + bgColor}
-								key={list.id}
-								onClick={() => {
-									list.cards.push(data);
-									lists.forEach(eList => {
-										if (eList.id === data.listId)
-											eList.splice(eList.indexOf(data), 1);
-									});
-									setShown(false);
-								}}
-							>
-								{list.title.length > 8 ? `${list.title.substring(0, 8)}...` : list.title}
-							</button>
-						);
-					})
-				}
+				{lists.map((list) => {
+					return (
+						<button
+							className={
+								"text-black p-2 rounded-xl " +
+								(list.id === data.listId
+									? "bg-yellow"
+									: "bg-white")
+							}
+							key={list.id}
+							onClick={() => {
+								if (list.id === data.listId) return;
+
+								list.cards.push(data);
+								lists.forEach((eList) => {
+									if (eList.id === data.listId)
+										eList.cards.splice(
+											eList.cards.indexOf(data),
+											1
+										);
+								});
+								data.listId = list.id;
+								forceUpdate();
+								setShown(false);
+							}}
+						>
+							{list.title.length > 8
+								? `${list.title.substring(0, 8)}...`
+								: list.title}
+						</button>
+					);
+				})}
 			</div>
 
 			<input

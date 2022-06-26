@@ -31,7 +31,7 @@ export default function List({ title, id, icards }) {
 			<CardCreator
 				cards={cards}
 				icards={icards}
-				currListId={id}
+				listId={id}
 				setCards={setCards}
 				setShown={setShowCardCreator}
 			/>

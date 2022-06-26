@@ -145,13 +145,13 @@ function OpenedCard({ data }) {
 							{data.dueDate.toLocaleString()}
 						</strong>
 					</h4>
-					<p className="text-lg border-black border-4 border-solid p-1 w-[100%]">
+					<div className="text-lg border-black border-4 border-solid p-1 w-[100%]">
 						<strong>Description:</strong>
 						<ReactMarkdown
 							children={data.description}
 							remarkPlugins={[remarkGfm]}
 						/>
-					</p>
+					</div>
 					<div className="flex flex-row gap-1 mt-2">
 						<h6 className="mt-2">Comments:</h6>
 						<button className="p-2 px-4 bg-yellow border-2 border-black rounded-xl font-extrabold">

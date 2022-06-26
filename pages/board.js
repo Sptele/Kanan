@@ -9,22 +9,21 @@ import { getAllLists } from "../util/mongodb";
 import randId from "../util/random-id";
 
 import Link from "next/link";
-import { useState, createContext } from "react";
+import { useState, createContext, useReducer } from "react";
 
 function ListRenderer({ listsR }) {
 	const renders = listsR[0].map((obj, i) => (
-		<List
-			key={obj.id}
-			id={obj.id}
-			title={obj.title}
-			icards={obj.cards}
-		/>
+		<List key={obj.id} id={obj.id} title={obj.title} icards={obj.cards} />
 	));
 
 	return <div className="flex gap-4">{renders}</div>;
 }
 
 export const ListsContext = createContext();
+export const CallbackContext = createContext();
+
+const id1 = randId();
+const id2 = randId()
 
 export default function Board({ listsR }) {
 	const memberOne = createMember(
@@ -46,22 +45,40 @@ export default function Board({ listsR }) {
 		[memberOne, memberTwo],
 		[firstComment],
 		false,
-		false
+		false,
+		null
 	);
 
+	const [_, forceUpdate] = useReducer((x) => x + 1, 0);
+
+	
 	const [lists, setLists] = useState([
 		...listsR,
 		{
-			id: randId(),
+			id: id1,
 			title: "List One",
-			cards: [firstCard],
+			cards: [
+				createCard(
+					"Card One",
+					"First Card, please finish Kanan lol",
+					new Date(),
+					new Date("June 26 2022 14:25:22"),
+					[memberOne, memberTwo],
+					[firstComment],
+					false,
+					false,
+					id1
+				)
+			],
 		},
 		{
-			id: randId(),
+			id: id2,
 			title: "List Two",
 			cards: [],
 		},
 	]);
+
+	console.log(lists[1].id);
 
 	return (
 		<Layout title="Kanan Board" description="desc">
@@ -72,9 +89,11 @@ export default function Board({ listsR }) {
 					</a>
 				</Link>
 				<div className="bg-green rounded-t-3xl p-4">
-					<ListsContext.Provider value={[lists, setLists]}>
-						<ListRenderer listsR={[lists, setLists]} />
-					</ListsContext.Provider>
+					<CallbackContext.Provider value={forceUpdate}>
+						<ListsContext.Provider value={[lists, setLists]}>
+							<ListRenderer listsR={[lists, setLists]} />
+						</ListsContext.Provider>
+					</CallbackContext.Provider>
 				</div>
 			</div>
 		</Layout>
