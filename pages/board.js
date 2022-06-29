@@ -13,7 +13,7 @@ import { useState, createContext, useReducer } from "react";
 
 function ListRenderer({ listsR }) {
 	const renders = listsR[0].map((obj, i) => (
-		<List key={obj.id} id={obj.id} title={obj.title} icards={obj.cards} />
+		<List key={obj.id} id={obj.id} title={obj.title} cards={obj.cards} lists={listsR[0]} />
 	));
 
 	return <div className="flex gap-4">{renders}</div>;
@@ -73,12 +73,10 @@ export default function Board({ listsR }) {
 		},
 		{
 			id: id2,
-			title: "List Two",
+			title: "List Two that is kinda ocol fsdjifsd;j",
 			cards: [],
 		},
 	]);
-
-	console.log(lists[1].id);
 
 	return (
 		<Layout title="Kanan Board" description="desc">

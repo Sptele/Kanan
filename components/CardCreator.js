@@ -20,9 +20,7 @@ function DescriptionInput({ description, onChange, onKeyDown }) {
 
 export default function CardCreator({
 	cards,
-	icards,
 	listId,
-	setCards,
 	setShown,
 }) {
 	const id = randId();
@@ -59,15 +57,13 @@ export default function CardCreator({
 			return;
 		} else setIsTitleError(false);
 
-		console.log(data);
-		setCards(cards.concat(data));
-		icards.push(data);
+		cards.push(data);
 		setShown(false);
 	};
 
 	const handleKeyPress = (e) => {
 		escape(e);
-		if (e.key === "Enter") submit();
+		//if (e.key === "Enter") submit();
 	};
 
 	const escape = (e) => {

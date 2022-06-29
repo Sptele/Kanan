@@ -13,12 +13,14 @@ import {
 	DescriptionUpdater,
 	DueDateUpdater,
 	ListUpdater,
+	ArchiveUpdater,
 } from "./card-updaters";
 
 import { ListsContext } from "../pages/board";
 
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import Draggable from "react-draggable";
 
 /*
 	{
@@ -82,7 +84,7 @@ function MembersIcons({ members }) {
 	);
 }
 
-function OpenedCard({ data }) {
+function OpenedCard({ data, cardList, index }) {
 	const [isOpen, setIsOpen] = useContext(OpenContext);
 	const [lists, setLists] = useContext(ListsContext);
 
@@ -90,6 +92,7 @@ function OpenedCard({ data }) {
 	const [isDescModalOpen, setIsDescModalOpen] = useState(false);
 	const [isDueDateModalOpen, setIsDueDateModalOpen] = useState(false);
 	const [isListModalOpen, setIsListModalOpen] = useState(false);
+	const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
 	const [_, forceUpdate] = useReducer((x) => x + 1, 0);
 
 	const ActionButton = ({ children, onClick }) => {
@@ -119,7 +122,22 @@ function OpenedCard({ data }) {
 			) : null}
 
 			{isListModalOpen ? (
-				<ListUpdater data={data} lists={lists} setShown={setIsListModalOpen} />
+				<ListUpdater
+					data={data}
+					cardList={cardList}
+					index={index}
+					lists={lists}
+					setShown={setIsListModalOpen}
+				/>
+			) : null}
+
+			{isArchiveModalOpen ? (
+				<ArchiveUpdater
+					data={data}
+					cardList={cardList}
+					index={index}
+					setShown={setIsArchiveModalOpen}
+				/>
 			) : null}
 
 			<div
@@ -183,13 +201,17 @@ function OpenedCard({ data }) {
 					>
 						Set Due Date
 					</ActionButton>
-					<ActionButton onClick={() => setIsListModalOpen(!isListModalOpen)}>Change List</ActionButton>
 					<ActionButton
-						onClick={() => {
-							data.archived = !data.archived;
-						}}
+						onClick={() => setIsListModalOpen(!isListModalOpen)}
 					>
-						{data.archived ? "UnArchive" : "Archive"}
+						Change List
+					</ActionButton>
+					<ActionButton
+						onClick={() =>
+							setIsArchiveModalOpen(!isArchiveModalOpen)
+						}
+					>
+						{data.archived ? "Unarchive" : "Archive"}
 					</ActionButton>
 					<ActionButton onClick={() => setIsOpen(!isOpen)}>
 						Close Card
@@ -200,7 +222,7 @@ function OpenedCard({ data }) {
 	);
 }
 
-function ClosedCard({ data }) {
+function ClosedCard({ data, cardList, index }) {
 	const [isOpen, setIsOpen] = useContext(OpenContext);
 
 	const timeState = getTimeState(data.dueDate);
@@ -217,6 +239,12 @@ function ClosedCard({ data }) {
 				(timeState === 0 ? " border-l-orange-500 border-l-4" : "") +
 				(timeState === 1 ? " border-l-[green] border-l-4" : "")
 			}
+			draggable
+			onDragStart={(event) => {
+				event.dataTransfer.setData("card", JSON.stringify(data));
+				event.dataTransfer.setData("cardList", JSON.stringify(data.listId));
+				event.dataTransfer.setData("cardIndex", JSON.stringify(index));
+			}}
 		>
 			<p className="closed-card-title leading-4">{data.title}</p>
 			<p
@@ -235,12 +263,16 @@ function ClosedCard({ data }) {
 	);
 }
 
-export default function Card({ data }) {
+export default function Card({ data, cardList, myIndex }) {
 	const [isOpen, setIsOpen] = useState(false);
 
 	return (
 		<OpenContext.Provider value={[isOpen, setIsOpen]}>
-			{isOpen ? <OpenedCard data={data} /> : <ClosedCard data={data} />}
+			{isOpen ? (
+				<OpenedCard data={data} cardList={cardList} index={myIndex} />
+			) : (
+				<ClosedCard data={data} cardList={cardList} index={myIndex} />
+			)}
 		</OpenContext.Provider>
 	);
 }

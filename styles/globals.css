@@ -71,13 +71,39 @@
 		@apply m-2;
 	}
 
-	div#card-creator-prev, .closed-card-title {
+	div#card-creator-prev,
+	.closed-card-title {
 		@apply whitespace-pre-wrap;
 		@apply break-words;
 	}
 
-	button, a, input[type="button"] {
+	button,
+	a,
+	input[type="button"] {
 		@apply cursor-pointer;
+	}
+
+	/* everything for scrollbar (::-webkit-scrollbar) is from w3schools:
+	https://www.w3schools.com/howto/howto_css_custom_scrollbar.asp */
+	/* width */
+	::-webkit-scrollbar {
+		@apply w-1;
+	}
+
+	/* Track */
+	::-webkit-scrollbar-track {
+		@apply bg-transparent;
+	}
+
+	/* Handle */
+	::-webkit-scrollbar-thumb {
+		@apply bg-[#888];
+		@apply rounded-full;
+	}
+
+	/* Handle on hover */
+	::-webkit-scrollbar-thumb:hover {
+		@apply bg-[#555];
 	}
 }
 

@@ -1,8 +1,8 @@
 import Card from "./Card";
 import getTimeState from "../util/get-time-state";
-import { createCard } from "../util/creation-factory";
-import { useState } from "react";
+import { useState, useContext } from "react";
 import CardCreator from "../components/CardCreator";
+import { CallbackContext } from "../pages/board";
 
 function CardRenderer({ cards, showCardCreator, setShowCardCreator }) {
 	return (
@@ -13,26 +13,30 @@ function CardRenderer({ cards, showCardCreator, setShowCardCreator }) {
 			>
 				Add a Card +
 			</button>
-
-			{cards.map((obj) => (
-				<Card key={obj.id} data={obj} />
-			))}
+			{cards
+				.filter((obj) => !obj.isArchived)
+				.map((obj, i) => (
+					<Card
+						key={obj.id}
+						data={obj}
+						cardList={cards}
+						myIndex={i}
+					/>
+				))}
 		</div>
 	);
 }
 
-export default function List({ title, id, icards }) {
-	const [cards, setCards] = useState(icards);
+export default function List({ title, id, cards, lists }) {
 	const [isOpen, setIsOpen] = useState(true);
 	const [showCardCreator, setShowCardCreator] = useState(false);
+	const forceUpdate = useContext(CallbackContext);
 
 	if (showCardCreator) {
 		return (
 			<CardCreator
 				cards={cards}
-				icards={icards}
 				listId={id}
-				setCards={setCards}
 				setShown={setShowCardCreator}
 			/>
 		);
@@ -57,10 +61,28 @@ export default function List({ title, id, icards }) {
 	});
 
 	return (
-		<div>
+		<div
+			onDragOver={(event) => event.preventDefault()}
+			onDrop={(event) => {
+				const data = JSON.parse(event.dataTransfer.getData("card"));
+				const cardList = JSON.parse(event.dataTransfer.getData("cardList"));
+				const cardIndex = JSON.parse(event.dataTransfer.getData("cardIndex"));
+
+				lists.filter((obj) => obj.id === cardList)[0].cards.splice(cardIndex, 1);
+
+				data.listId = id;
+				data.creationDate = new Date(data.creationDate);
+				data.dueDate = new Date(data.dueDate);
+				console.log(data);
+
+
+				cards.push(data);
+				forceUpdate();
+			}}
+		>
 			<div
 				className={
-					"bg-gray relative " +
+					"bg-gray relative list " +
 					(isOpen
 						? "w-[15rem] pb-4 rounded-t-xl text-center h-[75vh]"
 						: "min-h-[75vh] w-10 rounded-xl pt-2")
@@ -86,17 +108,13 @@ export default function List({ title, id, icards }) {
 								bgColor
 							}
 						>
-							{cards.length > 0 ? (
-								cards.length
-							) : (
-								<button
-									onClick={() =>
-										setShowCardCreator(!showCardCreator)
-									}
-								>
-									+
-								</button>
-							)}
+							<button
+								onClick={() =>
+									setShowCardCreator(!showCardCreator)
+								}
+							>
+								{cards.length > 0 ? cards.length : "+"}
+							</button>
 						</h6>
 					)}
 				</div>
@@ -110,7 +128,11 @@ export default function List({ title, id, icards }) {
 							onClick={() => setIsOpen(!isOpen)}
 							className={"inline-block"}
 						>
-							<h6>▶ {title}</h6>
+							<h6>
+								{title.length > 8
+									? `▶ ${title.substring(0, 7)}...`
+									: `▶ ${title}`}
+							</h6>
 						</button>
 					</div>
 				)}
