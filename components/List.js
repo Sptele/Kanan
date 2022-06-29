@@ -1,7 +1,7 @@
 import Card from "./Card";
 import getTimeState from "../util/get-time-state";
 import { useState, useContext } from "react";
-import CardCreator from "../components/CardCreator";
+import CardCreator from "./creators/CardCreator";
 import { CallbackContext } from "../pages/board";
 
 function CardRenderer({ cards, showCardCreator, setShowCardCreator }) {
@@ -23,6 +23,7 @@ function CardRenderer({ cards, showCardCreator, setShowCardCreator }) {
 						myIndex={i}
 					/>
 				))}
+
 		</div>
 	);
 }

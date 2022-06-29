@@ -2,9 +2,9 @@ import { useState, useReducer } from "react";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { createCard } from "../util/creation-factory";
+import { createCard } from "../../util/creation-factory";
 import { DateTimePicker } from "react-rainbow-components";
-import randId from "../util/random-id";
+import randId from "../../util/random-id";
 
 function DescriptionInput({ description, onChange, onKeyDown }) {
 	return (

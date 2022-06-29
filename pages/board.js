@@ -5,25 +5,49 @@ import {
 	createComment,
 	createCard,
 } from "../util/creation-factory";
-import { getAllLists } from "../util/mongodb";
 import randId from "../util/random-id";
 
 import Link from "next/link";
 import { useState, createContext, useReducer } from "react";
+import ListCreator from "../components/creators/ListCreator";
 
-function ListRenderer({ listsR }) {
-	const renders = listsR[0].map((obj, i) => (
-		<List key={obj.id} id={obj.id} title={obj.title} cards={obj.cards} lists={listsR[0]} />
-	));
+function ListRenderer({ lists, boardId }) {
+	const [isOpen, setIsOpen] = useState(false);
 
-	return <div className="flex gap-4">{renders}</div>;
+	if (isOpen) {
+		return <ListCreator lists={lists} boardId={boardId} setShown={setIsOpen} />;
+	}
+
+	return (
+		<div className="flex gap-4">
+			{lists.map((obj, i) => (
+				<List
+					key={obj.id}
+					id={obj.id}
+					title={obj.title}
+					cards={obj.cards}
+					lists={lists}
+				/>
+			))}
+			<button
+				className="relative max-h-[75vh] w-10 rounded-xl pt-2 bg-[#000000a8] text-white"
+				onClick={() => setIsOpen(!isOpen)}
+			>
+				<h6 className="absolute right-[-6.5rem] origin-center rotate-90 w-[15rem]">
+					Add a new List...
+				</h6>
+			</button>
+		</div>
+	);
 }
 
 export const ListsContext = createContext();
 export const CallbackContext = createContext();
 
 const id1 = randId();
-const id2 = randId()
+const id2 = randId();
+
+const boardId = randId();
 
 export default function Board({ listsR }) {
 	const memberOne = createMember(
@@ -51,7 +75,6 @@ export default function Board({ listsR }) {
 
 	const [_, forceUpdate] = useReducer((x) => x + 1, 0);
 
-	
 	const [lists, setLists] = useState([
 		...listsR,
 		{
@@ -68,7 +91,7 @@ export default function Board({ listsR }) {
 					false,
 					false,
 					id1
-				)
+				),
 			],
 		},
 		{
@@ -89,7 +112,7 @@ export default function Board({ listsR }) {
 				<div className="bg-green rounded-t-3xl p-4">
 					<CallbackContext.Provider value={forceUpdate}>
 						<ListsContext.Provider value={[lists, setLists]}>
-							<ListRenderer listsR={[lists, setLists]} />
+							<ListRenderer lists={lists} boardId={boardId} />
 						</ListsContext.Provider>
 					</CallbackContext.Provider>
 				</div>
@@ -100,7 +123,8 @@ export default function Board({ listsR }) {
 
 export async function getStaticProps() {
 	// ... I should probably store stuff in a db
-	const lists = await getAllLists();
+
+	const lists = [];
 
 	return {
 		props: {

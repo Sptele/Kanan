@@ -6,7 +6,7 @@ export default function Layout({ title, description, children }) {
 			<Head>
 				<title>{title}</title>
 				<link
-					rel="shortcut icon"
+					rel="icon"
 					href="/kanan.png"
 				/>
 				<meta title={title} description={description} />

@@ -55,7 +55,14 @@ function Comment({ sender }) {
 				</h6>
 				<p>{sender.content}</p>
 				<p className="text-xs text-slate-500">
-					{sender.timeStamp.toLocaleString()}
+					{sender.timeStamp.toLocaleString(undefined, {
+						weekday: "long",
+						year: "numeric",
+						month: "long",
+						day: "numeric",
+						hour: "numeric",
+						minute: "numeric",
+					})}
 				</p>
 			</div>
 		</div>
@@ -106,8 +113,7 @@ function OpenedCard({ data, cardList, index }) {
 		);
 	};
 
-	//const timeState = getTimeState(data.dueDate);
-	const timeState = 2;
+	const timeState = getTimeState(data.dueDate);
 	return (
 		<>
 			{isTitleModalOpen ? (
@@ -222,8 +228,9 @@ function OpenedCard({ data, cardList, index }) {
 	);
 }
 
-function ClosedCard({ data, cardList, index }) {
+function ClosedCard({ data, index }) {
 	const [isOpen, setIsOpen] = useContext(OpenContext);
+	const [isDragging, setIsDragging] = useState(false);
 
 	const timeState = getTimeState(data.dueDate);
 
@@ -237,27 +244,39 @@ function ClosedCard({ data, cardList, index }) {
 					: "") +
 				(timeState === -1 ? " bg-rose-600" : "") +
 				(timeState === 0 ? " border-l-orange-500 border-l-4" : "") +
-				(timeState === 1 ? " border-l-[green] border-l-4" : "")
+				(timeState === 1 ? " border-l-[green] border-l-4" : "") +
+				(isDragging ? " cursor-grabbing horizontal-shake" : "")
 			}
 			draggable
 			onDragStart={(event) => {
 				event.dataTransfer.setData("card", JSON.stringify(data));
-				event.dataTransfer.setData("cardList", JSON.stringify(data.listId));
+				event.dataTransfer.setData(
+					"cardList",
+					JSON.stringify(data.listId)
+				);
 				event.dataTransfer.setData("cardIndex", JSON.stringify(index));
+
+				setIsDragging(true);
 			}}
+			onDragEnd={(_) => setIsDragging(false)}
 		>
 			<p className="closed-card-title leading-4">{data.title}</p>
 			<p
 				className={
 					"text-xs text-slate-500 " +
-					(timeState === -1 ? "text-white" : "")
+					(timeState === -1 ? "text-[white]" : "")
 				}
 			>
 				{(timeState === -1 ? "LATE " : "") +
-					data.creationDate.getMonth() +
-					"/" +
-					data.creationDate.getDate()}{" "}
-				- {data.dueDate.getMonth() + "/" + data.dueDate.getDate()}
+					data.creationDate.toLocaleString("en-US", {
+						month: "numeric",
+						year: "2-digit",
+					})}{" "}
+				-{" "}
+				{data.dueDate.toLocaleString("en-US", {
+					month: "numeric",
+					day: "numeric",
+				})}
 			</p>
 		</button>
 	);
