@@ -15,11 +15,17 @@ function ListRenderer({ lists, boardId }) {
 	const [isOpen, setIsOpen] = useState(false);
 
 	if (isOpen) {
-		return <ListCreator lists={lists} boardId={boardId} setShown={setIsOpen} />;
+		return (
+			<ListCreator
+				lists={lists}
+				boardId={boardId}
+				setShown={setIsOpen}
+			/>
+		);
 	}
 
 	return (
-		<div className="flex gap-4">
+		<div className='flex gap-4'>
 			{lists.map((obj, i) => (
 				<List
 					key={obj.id}
@@ -30,10 +36,9 @@ function ListRenderer({ lists, boardId }) {
 				/>
 			))}
 			<button
-				className="relative max-h-[75vh] w-10 rounded-xl pt-2 bg-[#000000a8] text-white"
-				onClick={() => setIsOpen(!isOpen)}
-			>
-				<h6 className="absolute right-[-6.5rem] origin-center rotate-90 w-[15rem]">
+				className='relative max-h-[75vh] w-10 rounded-xl pt-2 bg-[#000000a8] text-white'
+				onClick={() => setIsOpen(!isOpen)}>
+				<h6 className='absolute right-[-6.5rem] origin-center rotate-90 w-[15rem]'>
 					Add a new List...
 				</h6>
 			</button>
@@ -43,80 +48,31 @@ function ListRenderer({ lists, boardId }) {
 
 export const ListsContext = createContext();
 export const CallbackContext = createContext();
-
-const id1 = randId();
-const id2 = randId();
+export const UserContext = createContext();
 
 const boardId = randId();
 
 export default function Board({ listsR }) {
-	const memberOne = createMember(
-		"Gautam Khajuria",
-		"The team manager.",
-		"Team Manager"
-	);
-	const memberTwo = createMember("John Doe", "", "");
-	const firstComment = createComment(
-		memberOne,
-		"Hey, this is an important card. Do it fast!",
-		new Date()
-	);
-	const firstCard = createCard(
-		"Card One",
-		"First Card, please finish Kanan lol",
-		new Date(),
-		new Date("June 26 2022 14:25:22"),
-		[memberOne, memberTwo],
-		[firstComment],
-		false,
-		false,
-		null
-	);
+	const currMember = createMember("John Doe", "A user", "Team Manager");
 
 	const [_, forceUpdate] = useReducer((x) => x + 1, 0);
 
-	const [lists, setLists] = useState([
-		...listsR,
-		{
-			id: id1,
-			title: "List One",
-			cards: [
-				createCard(
-					"Card One",
-					"First Card, please finish Kanan lol",
-					new Date(),
-					new Date("June 26 2022 14:25:22"),
-					[memberOne, memberTwo],
-					[firstComment],
-					false,
-					false,
-					id1
-				),
-			],
-		},
-		{
-			id: id2,
-			title: "List Two that is kinda ocol fsdjifsd;j",
-			cards: [],
-		},
-	]);
+	const [lists, setLists] = useState(listsR);
 
 	return (
-		<Layout title="Kanan Board" description="desc">
-			<div className="bg-teal min-h-screen grid grid-rows-board">
-				<Link href="/board">
-					<a>
-						<h1 className="text-center text-black">Kanan</h1>
-					</a>
-				</Link>
-				<div className="bg-green rounded-t-3xl p-4">
-					<CallbackContext.Provider value={forceUpdate}>
-						<ListsContext.Provider value={[lists, setLists]}>
-							<ListRenderer lists={lists} boardId={boardId} />
-						</ListsContext.Provider>
-					</CallbackContext.Provider>
-				</div>
-			</div>
+		<Layout
+			title='Kanan Board'
+			description='desc'>
+			<UserContext.Provider value={currMember}>
+				<CallbackContext.Provider value={forceUpdate}>
+					<ListsContext.Provider value={[lists, setLists]}>
+						<ListRenderer
+							lists={lists}
+							boardId={boardId}
+						/>
+					</ListsContext.Provider>
+				</CallbackContext.Provider>
+			</UserContext.Provider>
 		</Layout>
 	);
 }

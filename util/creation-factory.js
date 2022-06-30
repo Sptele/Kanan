@@ -8,8 +8,8 @@ import randId from "./random-id";
  * @param {String} linkToProfilePicture A URL link as a String to the profile picture.
  * @returns an Object representing this data.
  */
-export function createMember(name, biography, role, id = randId()) {
-	return { id, name, biography, role };
+export function createMember(name, email, biography, role, id = randId()) {
+	return { id, name, email, biography, role };
 }
 
 /**

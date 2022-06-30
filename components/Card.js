@@ -20,7 +20,6 @@ import { ListsContext } from "../pages/board";
 
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import Draggable from "react-draggable";
 
 /*
 	{
@@ -185,7 +184,7 @@ function OpenedCard({ data, cardList, index }) {
 					<CommentRenderer comments={data.comments} />
 				</div>
 				<div className="flex flex-col gap-2">
-					<ActionButton onClick={() => {}}>Add Members</ActionButton>
+					<ActionButton onClick={() => { }}>Add Members</ActionButton>
 					<ActionButton
 						onClick={() => {
 							setIsTitleModalOpen(!isTitleModalOpen);
