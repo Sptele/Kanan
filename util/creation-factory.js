@@ -67,12 +67,12 @@ export function createCard(
  * @param {String} title 
  * @param {String} boardId 
  * @param {Array.<Cards>} cards 
- * @param {String} id 
+ * @param {String} _id 
  * @returns 
  */
-export function createList(title, boardId, cards, id = randId()) {
+export function createList(title, boardId, cards, _id = randId()) {
 	return {
-		id,
+		_id: _id,
 		title,
 		boardId,
 		cards,

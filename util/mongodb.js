@@ -40,7 +40,9 @@ export async function insertList(list) {
 	try {
 		const { db } = await connectToDatabase();
 
-		const result = await db.insertOne(list);
+		const result = await db.collection("lists").insertOne(list);
+
+		console.log(result);
 
 		return result;
 	} catch (err) {
@@ -56,7 +58,9 @@ export async function getList(query, options={}) {
 
 		const result = await db.collection("lists").findOne(query, options);
 
-		return result;
+		console.log(result);
+
+		return JSON.parse(JSON.stringify(result));
 	} catch (err) {
 		console.error(err);
 
@@ -68,9 +72,11 @@ export async function getAllLists(options={}) {
 	try {
 		const { db } = await connectToDatabase();
 
-		const cursor = await db.collection("lists").find({}, options);
+		const cursor = await db.collection("lists").find({}, options).toArray();
 
-		return cursor.toArray();
+		console.log(cursor)
+
+		return JSON.parse(JSON.stringify(cursor));
 	} catch (err) {
 		console.error(err);
 
@@ -80,20 +86,29 @@ export async function getAllLists(options={}) {
 
 
 export async function createCollection() {
-	const db = await connectToDatabase();
+	const { db } = await connectToDatabase();
 	
 	db.createCollection("lists", (err, res) => {
-		if (err) throw err;
+		if (err) {
+			console.error(err);
+			return false;
+		};
 		console.log("Created lists!");
 	});
+
+	return true;
 }
 
 export async function certifyCollection() {
-	const db = await connectToDatabase();
+	const { db } = await connectToDatabase();
 	
 	db.collection("lists").findOne({}, (err, res) => {
-		if (err) throw err;
+		if (err) {
+			console.error(err);
+			return false;
+		};
 		console.log("Found lists!");
 	});
 
+	return true;
 }
