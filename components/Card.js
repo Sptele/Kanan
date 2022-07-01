@@ -99,7 +99,6 @@ function OpenedCard({ data, cardList, index }) {
 	const [isDueDateModalOpen, setIsDueDateModalOpen] = useState(false);
 	const [isListModalOpen, setIsListModalOpen] = useState(false);
 	const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
-	const [_, forceUpdate] = useReducer((x) => x + 1, 0);
 
 	const ActionButton = ({ children, onClick }) => {
 		return (

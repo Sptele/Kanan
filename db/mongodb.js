@@ -36,13 +36,39 @@ export async function connectToDatabase() {
 	return { client, db };
 }
 
-export async function insertList(list) {
+export async function createCollection(name) {
+	const { db } = await connectToDatabase();
+
+	db.createCollection(name, (err, res) => {
+		if (err) {
+			console.error(err);
+			return false;
+		}
+		console.log(`Created ${name}s!`);
+	});
+
+	return true;
+}
+
+export async function certifyCollection(name) {
+	const { db } = await connectToDatabase();
+
+	db.collection(name).findOne({}, (err, res) => {
+		if (err) {
+			console.error(err);
+			return false;
+		}
+		console.log(`Found ${name}s!`);
+	});
+
+	return true;
+}
+
+export async function insertToCollection(collection, data) {
 	try {
 		const { db } = await connectToDatabase();
 
-		const result = await db.collection("lists").insertOne(list);
-
-		console.log(result);
+		const result = await db.collection(collection).insertOne(data);
 
 		return result;
 	} catch (err) {
@@ -52,11 +78,11 @@ export async function insertList(list) {
 	}
 }
 
-export async function getList(query, options={}) {
+export async function getFromCollection(collection, query, options = {}) {
 	try {
 		const { db } = await connectToDatabase();
 
-		const result = await db.collection("lists").findOne(query, options);
+		const result = await db.collection(collection).findOne(query, options);
 
 		console.log(result);
 
@@ -68,13 +94,16 @@ export async function getList(query, options={}) {
 	}
 }
 
-export async function getAllLists(options={}) {
+export async function getAllFromCollection(collection, options = {}) {
 	try {
 		const { db } = await connectToDatabase();
 
-		const cursor = await db.collection("lists").find({}, options).toArray();
+		const cursor = await db
+			.collection(collection)
+			.find({}, options)
+			.toArray();
 
-		console.log(cursor)
+		console.log(cursor);
 
 		return JSON.parse(JSON.stringify(cursor));
 	} catch (err) {
@@ -82,33 +111,4 @@ export async function getAllLists(options={}) {
 
 		return null;
 	}
-}
-
-
-export async function createCollection() {
-	const { db } = await connectToDatabase();
-	
-	db.createCollection("lists", (err, res) => {
-		if (err) {
-			console.error(err);
-			return false;
-		};
-		console.log("Created lists!");
-	});
-
-	return true;
-}
-
-export async function certifyCollection() {
-	const { db } = await connectToDatabase();
-	
-	db.collection("lists").findOne({}, (err, res) => {
-		if (err) {
-			console.error(err);
-			return false;
-		};
-		console.log("Found lists!");
-	});
-
-	return true;
 }

@@ -53,6 +53,9 @@ export default function List({ title, id, cards, lists }) {
 	*/
 
 	cards.forEach((card) => {
+		card.creationDate = new Date(card.creationDate);
+		card.dueDate = new Date(card.dueDate);
+
 		const timeState = getTimeState(card.dueDate);
 
 		if (card.isUrgent) bgColor = "bg-red";
@@ -69,7 +72,7 @@ export default function List({ title, id, cards, lists }) {
 				const cardList = JSON.parse(event.dataTransfer.getData("cardList"));
 				const cardIndex = JSON.parse(event.dataTransfer.getData("cardIndex"));
 
-				lists.filter((obj) => obj.id === cardList)[0].cards.splice(cardIndex, 1);
+				lists.filter((obj) => obj._id === cardList)[0].cards.splice(cardIndex, 1);
 
 				data.listId = id;
 				data.creationDate = new Date(data.creationDate);

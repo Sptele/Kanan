@@ -10,6 +10,8 @@ import randId from "../util/random-id";
 import Link from "next/link";
 import { useState, createContext, useReducer } from "react";
 import ListCreator from "../components/creators/ListCreator";
+import { getAllLists } from "../db/list";
+import { getAllCards } from "../db/card";
 
 function ListRenderer({ lists, boardId }) {
 	const [isOpen, setIsOpen] = useState(false);
@@ -28,8 +30,8 @@ function ListRenderer({ lists, boardId }) {
 		<div className='flex gap-4'>
 			{lists.map((obj, i) => (
 				<List
-					key={obj.id}
-					id={obj.id}
+					key={obj._id}
+					id={obj._id}
 					title={obj.title}
 					cards={obj.cards}
 					lists={lists}
@@ -80,11 +82,23 @@ export default function Board({ listsR }) {
 export async function getStaticProps() {
 	// ... I should probably store stuff in a db
 
-	const lists = [];
+	const lists = await getAllLists();
+	const cards = await getAllCards();
+
+	lists.forEach((list) =>
+		cards.forEach((card) => {
+			if (card.listId === list.id) {
+				card.creationDate = new Date(card.creationDate);
+				card.dueDate = new Date(card.dueDate);
+				list.cards.push(card);
+			}
+		})
+	);
+	console.log(lists);
 
 	return {
 		props: {
-			listsR: lists,
+			listsR: JSON.parse(JSON.stringify(lists)),
 		},
 	};
 }

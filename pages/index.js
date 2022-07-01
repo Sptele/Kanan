@@ -1,17 +1,17 @@
-import { getAllLists, insertList } from "../util/mongodb"
+import { getAllLists, insertList } from "../db/list";
 import randId from "../util/random-id";
 import { createList } from "../util/creation-factory";
 
 export default function Home({ names }) {
 	return (
 		<>
-		<ol>
-			{names.map((obj, i) => {
-				return <li key={obj._id}>{obj.title}</li>
-			})}	
-		</ol>
+			<ol>
+				{names.map((obj, i) => {
+					return <li key={obj._id}>{obj.title}</li>;
+				})}
+			</ol>
 		</>
-	)
+	);
 }
 
 export async function getStaticProps() {
@@ -21,7 +21,6 @@ export async function getStaticProps() {
 	return {
 		props: {
 			names,
-			
-		}
-	}
+		},
+	};
 }
