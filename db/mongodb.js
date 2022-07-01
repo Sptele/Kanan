@@ -122,3 +122,31 @@ export async function deleteFromCollection(collection, query, options={}) {
 		return null;
 	}
 }
+
+export async function updateToCollection(collection, query, update, options={}) {
+	try {
+		const { db } = await connectToDatabase();
+
+		const result = await db.collection(collection).updateOne(query, update, options);
+
+		return JSON.parse(JSON.stringify(result));
+	} catch (err) {
+		console.error(err);
+
+		return null;
+	}
+}
+
+export async function replaceToCollection(collection, query, replacement, options={}) {
+	try {
+		const { db } = await connectToDatabase();
+
+		const result = await db.collection(collection).replaceOne(query, replacement, options);
+
+		return JSON.parse(JSON.stringify(result));
+	} catch (err) {
+		console.error(err);
+
+		return null;
+	}
+}

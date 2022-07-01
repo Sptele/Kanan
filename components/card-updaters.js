@@ -1,11 +1,35 @@
 import { DateTimePicker } from "react-rainbow-components";
 import { CallbackContext } from "../pages/board";
-import { useContext, useState, useReducer, useEffect } from "react";
+import { useContext, useState, useEffect } from "react";
 
 export function TitleUpdater({ data, setShown }) {
+
+	const [isSubmit, setIsSubmit] = useState(false);
+
+	useEffect(() => {
+		if (!isSubmit) return;
+
+		const runner = async () => {
+			await fetch("/api/card", {
+				method: "PATCH", 
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({ query: { _id: data._id }, replacement: { title: data.title } }),
+			});
+		};
+
+		runner();
+
+		setShown(false);
+		setIsSubmit(false);
+	}, [isSubmit]);
+
 	return (
 		<div className='bg-red p-4 fixed bottom-0 left-0 w-full z-50 mb-[25rem] border-y-2 border-y-black'>
-			<label htmlFor='title-updater' className='text-white'>
+			<label
+				htmlFor='title-updater'
+				className='text-white'>
 				New title:
 			</label>
 			<input
@@ -13,13 +37,13 @@ export function TitleUpdater({ data, setShown }) {
 				id='title-updater'
 				onChange={(e) => (data.title = e.target.value)}
 				onKeyDown={(e) => {
-					if (e.key === "Enter") setShown(false);
+					if (e.key === "Enter") setIsSubmit(true);
 				}}
 			/>
 			<input
 				type='button'
 				className='bg-white text-black p-2 rounded-xl'
-				onClick={() => setShown(false)}
+				onClick={() => setIsSubmit(true)}
 				value='Close'
 			/>
 		</div>
@@ -29,7 +53,9 @@ export function TitleUpdater({ data, setShown }) {
 export function DescriptionUpdater({ data, setShown }) {
 	return (
 		<div className='bg-red p-4 fixed bottom-0 left-0 w-full z-50 mb-[10rem] border-y-2 border-y-black'>
-			<label htmlFor='desc-updater' className='text-white'>
+			<label
+				htmlFor='desc-updater'
+				className='text-white'>
 				New Description:
 			</label>
 			<br />
@@ -55,7 +81,9 @@ export function DescriptionUpdater({ data, setShown }) {
 export function DueDateUpdater({ data, setShown }) {
 	return (
 		<div className='bg-red p-4 fixed bottom-0 left-0 w-full z-50 mb-[18rem] border-y-2 border-y-black'>
-			<label htmlFor='due-date-updater' className='text-white'>
+			<label
+				htmlFor='due-date-updater'
+				className='text-white'>
 				New Due Date:
 			</label>
 			<br />
@@ -85,7 +113,9 @@ export function ListUpdater({ data, cardList, index, lists, setShown }) {
 
 	return (
 		<div className='bg-red p-4 fixed bottom-0 left-0 w-full z-50 mb-[18rem] border-y-2 border-y-black'>
-			<label htmlFor='list-updater' className='text-white'>
+			<label
+				htmlFor='list-updater'
+				className='text-white'>
 				New List:
 			</label>
 			<div
@@ -137,7 +167,6 @@ export function ArchiveUpdater({ data, cardList, index, setShown }) {
 	const forceUpdate = useContext(CallbackContext);
 
 	useEffect(() => {
-
 		if (!hasDeleted) return;
 
 		const runner = async () => {
@@ -146,23 +175,24 @@ export function ArchiveUpdater({ data, cardList, index, setShown }) {
 				headers: {
 					"Content-Type": "application/json",
 				},
-				body: JSON.stringify({ _id: data._id })
-			})
-		}
+				body: JSON.stringify({ _id: data._id }),
+			});
+		};
 
 		runner();
-		
+
 		cardList.splice(index, 1);
 		setWillDelete(false);
 		setHasDeleted(false);
 		forceUpdate();
-		
-	})
+	});
 
 	data.isArchived = true; // set archived
 	return (
 		<div className='bg-red p-4 fixed bottom-0 left-0 w-full z-50 mb-[18rem] border-y-2 border-y-black flex flex-col justify-center'>
-			<label htmlFor='due-date-updater' className='text-white'>
+			<label
+				htmlFor='due-date-updater'
+				className='text-white'>
 				Card Archived! (You can also delete it permanently)
 			</label>
 			<div className='flex flex-row gap-16 justify-center'>
