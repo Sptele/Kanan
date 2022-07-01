@@ -1,4 +1,4 @@
-import { getFromCollection, getAllFromCollection, insertToCollection } from "./mongodb";
+import { getFromCollection, getAllFromCollection, insertToCollection, deleteFromCollection } from "./mongodb";
 
 /* The following methods are wrappers to generic methods in mongodb.js, specifically to the lists collection. */
 
@@ -14,5 +14,10 @@ export async function getList(query, options={}) {
 
 export async function getAllLists(options={}) {
 	const result = await getAllFromCollection("lists", options);
+	return result;
+}
+
+export async function deleteList(query, options={}) {
+	const result = await deleteFromCollection("lists", query, options);
 	return result;
 }

@@ -84,8 +84,6 @@ export async function getFromCollection(collection, query, options = {}) {
 
 		const result = await db.collection(collection).findOne(query, options);
 
-		console.log(result);
-
 		return JSON.parse(JSON.stringify(result));
 	} catch (err) {
 		console.error(err);
@@ -103,9 +101,21 @@ export async function getAllFromCollection(collection, options = {}) {
 			.find({}, options)
 			.toArray();
 
-		console.log(cursor);
-
 		return JSON.parse(JSON.stringify(cursor));
+	} catch (err) {
+		console.error(err);
+
+		return null;
+	}
+}
+
+export async function deleteFromCollection(collection, query, options={}) {
+	try {
+		const { db } = await connectToDatabase();
+
+		const result = await db.collection(collection).deleteOne(query, options);
+
+		return JSON.parse(JSON.stringify(result));
 	} catch (err) {
 		console.error(err);
 

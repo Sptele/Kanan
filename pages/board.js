@@ -88,13 +88,10 @@ export async function getStaticProps() {
 	lists.forEach((list) =>
 		cards.forEach((card) => {
 			if (card.listId === list.id) {
-				card.creationDate = new Date(card.creationDate);
-				card.dueDate = new Date(card.dueDate);
 				list.cards.push(card);
 			}
 		})
 	);
-	console.log(lists);
 
 	return {
 		props: {

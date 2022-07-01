@@ -1,6 +1,6 @@
 import { DateTimePicker } from "react-rainbow-components";
 import { CallbackContext } from "../pages/board";
-import { useContext, useState, useReducer } from "react";
+import { useContext, useState, useReducer, useEffect } from "react";
 
 export function TitleUpdater({ data, setShown }) {
 	return (
@@ -133,7 +133,31 @@ export function ListUpdater({ data, cardList, index, lists, setShown }) {
 
 export function ArchiveUpdater({ data, cardList, index, setShown }) {
 	const [willDelete, setWillDelete] = useState(false);
+	const [hasDeleted, setHasDeleted] = useState(false);
 	const forceUpdate = useContext(CallbackContext);
+
+	useEffect(() => {
+
+		if (!hasDeleted) return;
+
+		const runner = async () => {
+			await fetch("/api/card/", {
+				method: "DELETE",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({ _id: data._id })
+			})
+		}
+
+		runner();
+		
+		cardList.splice(index, 1);
+		setWillDelete(false);
+		setHasDeleted(false);
+		forceUpdate();
+		
+	})
 
 	data.isArchived = true; // set archived
 	return (
@@ -164,9 +188,7 @@ export function ArchiveUpdater({ data, cardList, index, setShown }) {
 							type='button'
 							className='bg-[darkred] text-black p-2 border-2 border-black rounded-md'
 							onClick={() => {
-								cardList.splice(index, 1);
-								setWillDelete(false);
-								forceUpdate();
+								setHasDeleted(true);
 							}}
 							value='Are you sure?'
 						/>
