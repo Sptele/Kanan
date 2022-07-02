@@ -26,7 +26,7 @@ export default function ListCreator({ lists, boardId, setShown }) {
 				id="list-title"
 				className="p-2"
 				onChange={(e) => setTitle(e.target.value)}
-				onKeydown={handleKeypress}
+				onKeyDown={handleKeypress}
 			/>
 			<input
 				type="button"

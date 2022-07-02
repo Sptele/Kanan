@@ -17,7 +17,7 @@ function CardRenderer({ cards, showCardCreator, setShowCardCreator }) {
 				.filter((obj) => !obj.isArchived)
 				.map((obj, i) => (
 					<Card
-						key={obj.id}
+						key={obj._id}
 						data={obj}
 						cardList={cards}
 						myIndex={i}

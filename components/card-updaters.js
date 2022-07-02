@@ -2,28 +2,35 @@ import { DateTimePicker } from "react-rainbow-components";
 import { CallbackContext } from "../pages/board";
 import { useContext, useState, useEffect } from "react";
 
-export function TitleUpdater({ data, setShown }) {
+const handleSubmit = (setShown, isSubmit, setIsSubmit, data, toUpdate) => {
+	if (!isSubmit) return;
 
+	const runner = async () => {
+		await fetch("/api/card", {
+			method: "PATCH",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({
+				query: { _id: data._id },
+				update: { [toUpdate]: data[toUpdate] },
+			}),
+		});
+	};
+
+	runner();
+
+	setShown(false);
+	setIsSubmit(false);
+};
+
+export function TitleUpdater({ data, setShown }) {
 	const [isSubmit, setIsSubmit] = useState(false);
 
-	useEffect(() => {
-		if (!isSubmit) return;
-
-		const runner = async () => {
-			await fetch("/api/card", {
-				method: "PATCH", 
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({ query: { _id: data._id }, replacement: { title: data.title } }),
-			});
-		};
-
-		runner();
-
-		setShown(false);
-		setIsSubmit(false);
-	}, [isSubmit]);
+	useEffect(
+		() => handleSubmit(setShown, isSubmit, setIsSubmit, data, "title"),
+		[isSubmit]
+	);
 
 	return (
 		<div className='bg-red p-4 fixed bottom-0 left-0 w-full z-50 mb-[25rem] border-y-2 border-y-black'>
@@ -51,6 +58,13 @@ export function TitleUpdater({ data, setShown }) {
 }
 
 export function DescriptionUpdater({ data, setShown }) {
+	const [isSubmit, setIsSubmit] = useState(false);
+	useEffect(
+		() =>
+			handleSubmit(setShown, isSubmit, setIsSubmit, data, "description"),
+		[isSubmit]
+	);
+
 	return (
 		<div className='bg-red p-4 fixed bottom-0 left-0 w-full z-50 mb-[10rem] border-y-2 border-y-black'>
 			<label
@@ -71,7 +85,7 @@ export function DescriptionUpdater({ data, setShown }) {
 			<input
 				type='button'
 				className='bg-white text-black p-2 rounded-xl mt-2'
-				onClick={() => setShown(false)}
+				onClick={() => setIsSubmit(true)}
 				value='Close'
 			/>
 		</div>
@@ -79,6 +93,12 @@ export function DescriptionUpdater({ data, setShown }) {
 }
 
 export function DueDateUpdater({ data, setShown }) {
+	const [isSubmit, setIsSubmit] = useState(false);
+	useEffect(
+		() => handleSubmit(setShown, isSubmit, setIsSubmit, data, "dueDate"),
+		[isSubmit]
+	);
+
 	return (
 		<div className='bg-red p-4 fixed bottom-0 left-0 w-full z-50 mb-[18rem] border-y-2 border-y-black'>
 			<label
@@ -101,7 +121,7 @@ export function DueDateUpdater({ data, setShown }) {
 			<input
 				type='button'
 				className='bg-white text-black p-2 rounded-xl mt-2'
-				onClick={() => setShown(false)}
+				onClick={() => setIsSubmit(true)}
 				value='Close'
 			/>
 		</div>
@@ -110,6 +130,12 @@ export function DueDateUpdater({ data, setShown }) {
 
 export function ListUpdater({ data, cardList, index, lists, setShown }) {
 	const forceUpdate = useContext(CallbackContext);
+
+	const [isSubmit, setIsSubmit] = useState(false);
+	useEffect(
+		() => handleSubmit(setShown, isSubmit, setIsSubmit, data, "listId"),
+		[isSubmit]
+	);
 
 	return (
 		<div className='bg-red p-4 fixed bottom-0 left-0 w-full z-50 mb-[18rem] border-y-2 border-y-black'>
@@ -133,6 +159,8 @@ export function ListUpdater({ data, cardList, index, lists, setShown }) {
 							key={list.id}
 							onClick={() => {
 								if (list.id === data.listId) return;
+
+								setIsSubmit(true);
 
 								cardList.splice(index, 1);
 								console.log(cardList);
@@ -164,28 +192,47 @@ export function ListUpdater({ data, cardList, index, lists, setShown }) {
 export function ArchiveUpdater({ data, cardList, index, setShown }) {
 	const [willDelete, setWillDelete] = useState(false);
 	const [hasDeleted, setHasDeleted] = useState(false);
+	const [isSubmit, setIsSubmit] = useState(false);
 	const forceUpdate = useContext(CallbackContext);
 
 	useEffect(() => {
-		if (!hasDeleted) return;
+		if (hasDeleted) {
+			const runner = async () => {
+				await fetch("/api/card/", {
+					method: "DELETE",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({ _id: data._id }),
+				});
+			};
 
-		const runner = async () => {
-			await fetch("/api/card/", {
-				method: "DELETE",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({ _id: data._id }),
-			});
-		};
+			runner();
 
-		runner();
+			cardList.splice(index, 1);
+			setWillDelete(false);
+			setHasDeleted(false);
+			forceUpdate();
+		} else if (isSubmit) {
+			const runner = async () => {
+				await fetch("/api/card", {
+					method: "PATCH",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({
+						query: { _id: data._id },
+						update: { isArchived: data.isArchived },
+					}),
+				});
+			};
 
-		cardList.splice(index, 1);
-		setWillDelete(false);
-		setHasDeleted(false);
-		forceUpdate();
-	});
+			runner();
+
+			setShown(false);
+			forceUpdate();
+		}
+	}, [hasDeleted, isSubmit]);
 
 	data.isArchived = true; // set archived
 	return (
@@ -230,13 +277,7 @@ export function ArchiveUpdater({ data, cardList, index, setShown }) {
 				type='button'
 				className='bg-white text-black p-2 rounded-xl mt-2 m-auto'
 				onClick={() => {
-					if (data.isArchived) {
-						// Did not cancel
-						forceUpdate();
-					} else {
-						// Did cancel
-						setShown(false);
-					}
+					setIsSubmit(true);
 				}}
 				value='Close'
 			/>
