@@ -47,7 +47,7 @@ export default function New() {
 						/>
 						<input
 							type='button'
-							value={isSubmitting ? "Redirecting..." : "Create"}
+							value={isSubmitting ? "Created!" : "Create"}
 							className='bg-white p-4 rounded-full text-black'
 							onClick={() => setIsSubmitting(true)}
 						/>

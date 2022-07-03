@@ -6,11 +6,10 @@ import { CallbackContext } from "../pages/boards/[id]";
 
 function CardRenderer({ cards, showCardCreator, setShowCardCreator }) {
 	return (
-		<div className="flex flex-col">
+		<div className='flex flex-col'>
 			<button
-				className="bg-[#000000bd] text-center rounded-md text-white mx-4 mt-4 p-4 h-14 "
-				onClick={() => setShowCardCreator(!showCardCreator)}
-			>
+				className='bg-[#000000bd] text-center rounded-md text-white mx-4 mt-4 p-4 h-14 '
+				onClick={() => setShowCardCreator(!showCardCreator)}>
 				Add a Card +
 			</button>
 			{cards
@@ -23,7 +22,6 @@ function CardRenderer({ cards, showCardCreator, setShowCardCreator }) {
 						myIndex={i}
 					/>
 				))}
-
 		</div>
 	);
 }
@@ -69,36 +67,57 @@ export default function List({ title, id, cards, lists }) {
 			onDragOver={(event) => event.preventDefault()}
 			onDrop={(event) => {
 				const data = JSON.parse(event.dataTransfer.getData("card"));
-				const cardList = JSON.parse(event.dataTransfer.getData("cardList"));
-				const cardIndex = JSON.parse(event.dataTransfer.getData("cardIndex"));
+				const cardList = JSON.parse(
+					event.dataTransfer.getData("cardList")
+				);
+				const cardIndex = JSON.parse(
+					event.dataTransfer.getData("cardIndex")
+				);
 
-				lists.filter((obj) => obj._id === cardList)[0].cards.splice(cardIndex, 1);
+				lists
+					.filter((obj) => obj._id === cardList)[0]
+					.cards.splice(cardIndex, 1);
 
 				data.listId = id;
 				data.creationDate = new Date(data.creationDate);
 				data.dueDate = new Date(data.dueDate);
-				console.log(data);
 
+				const runner = async () => {
+					await fetch("/api/card/", {
+						method: "PATCH",
+						headers: {
+							"Content-Type": "application/json",
+						},
+						body: JSON.stringify({
+							query: { _id: data._id },
+							update: {
+								listId: data.listId,
+								creationDate: data.creationDate,
+								dueDate: data.dueDate,
+							},
+						}),
+					});
+				};
 
 				cards.push(data);
+
+				runner();
+
 				forceUpdate();
-			}}
-		>
+			}}>
 			<div
 				className={
 					"bg-gray relative list " +
 					(isOpen
 						? "w-[15rem] pb-4 rounded-t-xl text-center h-[75vh]"
 						: "min-h-[75vh] w-10 rounded-xl pt-2")
-				}
-			>
+				}>
 				<div
 					className={
 						isOpen
 							? " overflow-y-auto max-h-[75vh] overflow-x-hidden "
 							: ""
-					}
-				>
+					}>
 					{isOpen ? (
 						<CardRenderer
 							cards={cards}
@@ -110,13 +129,11 @@ export default function List({ title, id, cards, lists }) {
 							className={
 								`text-white text-center m-2 p-1 rounded-full ` +
 								bgColor
-							}
-						>
+							}>
 							<button
 								onClick={() =>
 									setShowCardCreator(!showCardCreator)
-								}
-							>
+								}>
 								{cards.length > 0 ? cards.length : "+"}
 							</button>
 						</h6>
@@ -126,12 +143,10 @@ export default function List({ title, id, cards, lists }) {
 					<div
 						className={
 							"absolute bottom-8 right-[-2.5rem] origin-center rotate-90 w-[7rem]"
-						}
-					>
+						}>
 						<button
 							onClick={() => setIsOpen(!isOpen)}
-							className={"inline-block"}
-						>
+							className={"inline-block"}>
 							<h6>
 								{title.length > 8
 									? `▶ ${title.substring(0, 7)}...`
@@ -147,8 +162,7 @@ export default function List({ title, id, cards, lists }) {
 						onClick={() => setIsOpen(!isOpen)}
 						className={
 							"inline-block bg-gray p-4 rounded-b-xl m-auto w-[15rem]"
-						}
-					>
+						}>
 						<h6>▶ {title}</h6>
 					</button>
 				</div>

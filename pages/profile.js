@@ -4,8 +4,30 @@ import ProfilePicture from "../components/ProfilePicture";
 import { getAllMembers } from "../db/member";
 import { createMember } from "../util/creation-factory";
 import { useState } from "react";
+import { getAllBoards } from "../db/board";
 
-function CreateMember({ setShown }) {
+function CreateMember({ setShown, allMembers }) {
+	const [data, setData] = useState(createMember("", "", "", "", true));
+
+	// TODO: create support for multiple profiles
+
+	const submit = () => {
+		const runner = async () => {
+			await fetch("/api/member", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(data),
+			});
+		};
+
+		runner();
+
+		allMembers.push(data);
+		setShown(false);
+	};
+
 	return (
 		<div className='flex flex-col gap-4 p-4 text-center mr-4'>
 			<div className='flex flex-col gap-4'>
@@ -17,6 +39,17 @@ function CreateMember({ setShown }) {
 							className='w-full p-2 rounded-lg'
 							type='text'
 							placeholder='John Doe'
+							onChange={(e) => {
+								setData(
+									createMember(
+										e.target.value,
+										data.email,
+										data.biography,
+										data.role,
+										data.isSignedIn
+									)
+								);
+							}}
 						/>
 					</div>
 					<div className='flex flex-col gap-4'>
@@ -25,6 +58,17 @@ function CreateMember({ setShown }) {
 							className='w-full p-2 rounded-lg'
 							type='email'
 							placeholder='john.doe@email.com'
+							onChange={(e) => {
+								setData(
+									createMember(
+										data.name,
+										e.target.value,
+										data.biography,
+										data.role,
+										data.isSignedIn
+									)
+								);
+							}}
 						/>
 					</div>
 					<div className='flex flex-col gap-4'>
@@ -33,6 +77,17 @@ function CreateMember({ setShown }) {
 							className='w-full p-2 rounded-lg'
 							type='text'
 							placeholder='Admin'
+							onChange={(e) => {
+								setData(
+									createMember(
+										data.name,
+										data.email,
+										data.biography,
+										e.target.value,
+										data.isSignedIn
+									)
+								);
+							}}
 						/>
 					</div>
 					<div className='flex flex-col gap-4'>
@@ -42,9 +97,37 @@ function CreateMember({ setShown }) {
 							placeholder='My biography'
 							rows='7'
 							col='50'
+							onChange={(e) => {
+								setData(
+									createMember(
+										data.name,
+										data.email,
+										e.target.value,
+										data.role,
+										data.isSignedIn
+									)
+								);
+							}}
 						/>
 					</div>
-					
+					<div className='flex content-center'>
+						<input
+							type='button'
+							value='Cancel'
+							className='bg-red text-white p-4 rounded-full m-auto'
+							onClick={() => setShown(false)}
+						/>
+						<div className='flex flex-col m-auto mt-2'>
+							<input
+								type='button'
+								value='Create'
+								className={
+									"bg-black text-white p-4 rounded-full"
+								}
+								onClick={submit}
+							/>
+						</div>
+					</div>
 				</form>
 			</div>
 		</div>
@@ -72,11 +155,26 @@ function MemberShow({ member }) {
 	);
 }
 
-export default function Profile({ member }) {
+function ClosedBoard({ board }) {
+	return (
+		<Link href={`/boards/${board._id}`}>
+			<a className="p-2 w-full bg-yellow text-black rounded-xl">{board.title}</a>
+		</Link>
+	)
+}
+
+export default function Profile({ all, boards }) {
 	const [isOpen, setIsOpen] = useState(false);
 
+	const member = all.find((member) => member.isSignedIn);
+
 	if (isOpen) {
-		return <CreateMember setShown={setIsOpen} />;
+		return (
+			<CreateMember
+				setShown={setIsOpen}
+				allMembers={all}
+			/>
+		);
 	}
 
 	return (
@@ -85,8 +183,31 @@ export default function Profile({ member }) {
 			description='Your Profile Page, where you can find and update your information as well as your boards.'>
 			<div className='grid grid-cols-2 grid-rows-1 gap-4'>
 				<div className='flex flex-col gap-4 text-center'>
-					{member !== null && <MemberShow member={member} />}
-					<button className="p-2 text-black bg-white rounded-full w-6" onClick={() => setIsOpen(!isOpen)}>+</button>
+					{member && <MemberShow member={member} />}
+					<button
+						className='p-2 text-black bg-white rounded-full w-20 m-auto'
+						onClick={() => setIsOpen(!isOpen)}>
+						Create New Profile
+					</button>
+				</div>
+				<div className='bg-white flex flex-col gap-2 rounded-xl min-h-full'>
+					<h2 className='text-left text-black m-4'>Your Boards</h2>
+					<div className="overflow-y-auto flex flex-col min-h-[75vh] gap-2 p-2">
+						<Link href="/boards/new">
+							<a className="p-1 w-full bg-black text-white rounded-xl text-center">Create a new board...</a>
+						</Link>
+					{
+						boards.map((board) => {
+							return (
+								<ClosedBoard
+									key={board._id}
+									board={board}
+								/>
+							);
+						})
+					}
+
+					</div>
 				</div>
 			</div>
 		</Layout>
@@ -95,20 +216,12 @@ export default function Profile({ member }) {
 
 export async function getStaticProps() {
 	const all = await getAllMembers();
-
-	if (!all || all.length === 0) {
-		return {
-			props: {
-				member: null,
-			},
-		};
-	}
-
-	const member = all.filter((member) => member.isSignedIn)[0];
+	const boards = await getAllBoards();
 
 	return {
 		props: {
-			member: member ? member : null,
+			all,
+			boards
 		},
 	};
 }

@@ -20,7 +20,7 @@ export async function getBoard(query, options={}) {
 }
 
 export async function getAllBoards(options={}) {
-	const result = await getAllFromCollection("boards", {}, options);
+	const result = await getAllFromCollection("boards", options);
 	return result;
 }
 

@@ -1,4 +1,4 @@
-import { deleteBoard, insertBoard, updateBoard, replaceBoard } from "../../db/board";
+import { deleteMember, insertMember, updateMember, replaceMember } from "../../db/member";
 
 /**
  * This page handles all requests for the BOARD collection in mongodb.
@@ -26,7 +26,7 @@ export default async function handler(req, res) {
 async function update(req, res) {
 	try {
 		// Update data
-		const response = await updateBoard(req.body.query, {
+		const response = await updateMember(req.body.query, {
 			$set: req.body.update,
 		});
 
@@ -42,7 +42,7 @@ async function update(req, res) {
 async function drop(req, res) {
 	try {
 		// Drop data
-		const response = await deleteBoard(req.body);
+		const response = await deleteMember(req.body);
 
 		// Return with what was sent with status code 200
 		res.status(200)
@@ -56,7 +56,7 @@ async function drop(req, res) {
 async function replace(req, res) {
 	try {
 		// Replace data
-		const response = await replaceBoard(
+		const response = await replaceMember(
 			req.body.query,
 			req.body.replacement
 		);
@@ -73,12 +73,12 @@ async function replace(req, res) {
 async function post(req, res) {
 	try {
 		// Add data
-		const response = await insertBoard(req.body);
+		const response = await insertMember(req.body);
 
 		// Return with what was sent with status code 200
 		res.status(200)
 			.setHeader("content-type", "application/json")
-			.json({ board: req.body, response });
+			.json({ member: req.body, response });
 	} catch (error) {
 		throw error;
 	}
