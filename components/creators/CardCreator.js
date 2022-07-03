@@ -5,21 +5,24 @@ import remarkGfm from "remark-gfm";
 import { createCard } from "../../util/creation-factory";
 import { DateTimePicker } from "react-rainbow-components";
 import randId from "../../util/random-id";
+import { useRouter } from "next/router";
 
 function DescriptionInput({ description, onChange, onKeyDown }) {
 	return (
 		<textarea
 			value={description}
 			onChange={onChange}
-			className='border-black border-2 mb-2 w-[100%] h-[20rem] p-2'
+			className='border-black border-2 ml-0 mb-2 w-[100%] h-[20rem] p-2'
 			id='card-creator-desc'
 			onKeyDown={onKeyDown}
 		/>
 	);
 }
 
-export default function CardCreator({ cards, listId, setShown }) {
+export default function CardCreator({ listId }) {
 	const id = randId();
+
+	const router = useRouter();
 
 	const [data, setData] = useState(
 		createCard(
@@ -47,22 +50,24 @@ export default function CardCreator({ cards, listId, setShown }) {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	useEffect(() => {
-
 		if (!isSubmitting) return;
 
-		console.log('making api call...')
-		fetch("/api/card", {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify(data),
-		});
+		const runner = async () => {
+			await fetch("/api/card", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(data),
+			});
+		};
+
+		runner();
+
+		router.push(`/cards/${data._id}`)
+
 		setIsSubmitting(false);
-		
-		cards.push(data);
-		setShown(false);
-	}, [isSubmitting]);
+	}, [isSubmitting, data]);
 
 	const submit = () => {
 		if (!data.title || data.title === "" || data.title === " ") {
@@ -72,7 +77,6 @@ export default function CardCreator({ cards, listId, setShown }) {
 		} else setIsTitleError(false);
 
 		setIsSubmitting(true);
-
 	};
 
 	const handleKeyPress = (e) => {
@@ -182,12 +186,11 @@ export default function CardCreator({ cards, listId, setShown }) {
 					</label>
 					<br />
 					<div
-						className='border-black border-2 mb-2 w-[100%] min-h-[20rem] p-2 bg-[white]'
+						className='border-black border-2 mt-2 mb-2 w-[100%] min-h-[20rem] p-2 bg-[white]'
 						id='card-creator-prev'>
-						<ReactMarkdown
-							children={data.description}
-							remarkPlugins={[remarkGfm]}
-						/>
+						<ReactMarkdown remarkPlugins={[remarkGfm]}>
+							{data.description}
+						</ReactMarkdown>
 					</div>
 				</div>
 			</div>

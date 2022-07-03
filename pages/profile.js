@@ -5,6 +5,7 @@ import { getAllMembers } from "../db/member";
 import { createMember } from "../util/creation-factory";
 import { useState } from "react";
 import { getAllBoards } from "../db/board";
+import Loading from "../components/Loading";
 
 function CreateMember({ setShown, allMembers }) {
 	const [data, setData] = useState(createMember("", "", "", "", true));
@@ -155,16 +156,21 @@ function MemberShow({ member }) {
 	);
 }
 
-function ClosedBoard({ board }) {
+function ClosedBoard({ board, showLoader }) {
 	return (
 		<Link href={`/boards/${board._id}`}>
-			<a className="p-2 w-full bg-yellow text-black rounded-xl">{board.title}</a>
+			<a
+				className='p-2 w-full bg-yellow text-black rounded-xl'
+				onClick={() => showLoader(true)}>
+				{board.title}
+			</a>
 		</Link>
-	)
+	);
 }
 
 export default function Profile({ all, boards }) {
 	const [isOpen, setIsOpen] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
 
 	const member = all.find((member) => member.isSignedIn);
 
@@ -178,39 +184,44 @@ export default function Profile({ all, boards }) {
 	}
 
 	return (
-		<Layout
-			title='Profile'
-			description='Your Profile Page, where you can find and update your information as well as your boards.'>
-			<div className='grid grid-cols-2 grid-rows-1 gap-4'>
-				<div className='flex flex-col gap-4 text-center'>
-					{member && <MemberShow member={member} />}
-					<button
-						className='p-2 text-black bg-white rounded-full w-20 m-auto'
-						onClick={() => setIsOpen(!isOpen)}>
-						Create New Profile
-					</button>
-				</div>
-				<div className='bg-white flex flex-col gap-2 rounded-xl min-h-full'>
-					<h2 className='text-left text-black m-4'>Your Boards</h2>
-					<div className="overflow-y-auto flex flex-col min-h-[75vh] gap-2 p-2">
-						<Link href="/boards/new">
-							<a className="p-1 w-full bg-black text-white rounded-xl text-center">Create a new board...</a>
-						</Link>
-					{
-						boards.map((board) => {
-							return (
-								<ClosedBoard
-									key={board._id}
-									board={board}
-								/>
-							);
-						})
-					}
-
+		<>
+			{isLoading && <Loading text={"Redirecting..."} />}
+			<Layout
+				title='Profile'
+				description='Your Profile Page, where you can find and update your information as well as your boards.'>
+				<div className='grid grid-cols-2 grid-rows-1 gap-4'>
+					<div className='flex flex-col gap-4 text-center'>
+						{member && <MemberShow member={member} />}
+						<button
+							className='p-2 text-black bg-white rounded-full w-20 m-auto'
+							onClick={() => setIsOpen(!isOpen)}>
+							Create New Profile
+						</button>
+					</div>
+					<div className='bg-white flex flex-col gap-2 rounded-xl min-h-full'>
+						<h2 className='text-left text-black m-4'>
+							Your Boards
+						</h2>
+						<div className='overflow-y-auto flex flex-col min-h-[75vh] gap-2 p-2'>
+							<Link href='/boards/new'>
+								<a className='p-1 w-full bg-black text-white rounded-xl text-center'>
+									Create a new board...
+								</a>
+							</Link>
+							{boards.map((board) => {
+								return (
+									<ClosedBoard
+										key={board._id}
+										board={board}
+										showLoader={setIsLoading}
+									/>
+								);
+							})}
+						</div>
 					</div>
 				</div>
-			</div>
-		</Layout>
+			</Layout>
+		</>
 	);
 }
 
@@ -221,7 +232,7 @@ export async function getStaticProps() {
 	return {
 		props: {
 			all,
-			boards
+			boards,
 		},
 	};
 }

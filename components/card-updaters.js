@@ -29,7 +29,7 @@ export function TitleUpdater({ data, setShown }) {
 
 	useEffect(
 		() => handleSubmit(setShown, isSubmit, setIsSubmit, data, "title"),
-		[isSubmit]
+		[isSubmit, setShown, data]
 	);
 
 	return (
@@ -62,7 +62,7 @@ export function DescriptionUpdater({ data, setShown }) {
 	useEffect(
 		() =>
 			handleSubmit(setShown, isSubmit, setIsSubmit, data, "description"),
-		[isSubmit]
+		[isSubmit, setShown, data]
 	);
 
 	return (
@@ -96,7 +96,7 @@ export function DueDateUpdater({ data, setShown }) {
 	const [isSubmit, setIsSubmit] = useState(false);
 	useEffect(
 		() => handleSubmit(setShown, isSubmit, setIsSubmit, data, "dueDate"),
-		[isSubmit]
+		[isSubmit, setShown, data]
 	);
 
 	return (
@@ -134,7 +134,7 @@ export function ListUpdater({ data, cardList, index, lists, setShown }) {
 	const [isSubmit, setIsSubmit] = useState(false);
 	useEffect(
 		() => handleSubmit(setShown, isSubmit, setIsSubmit, data, "listId"),
-		[isSubmit]
+		[isSubmit, setShown, data]
 	);
 
 	return (
@@ -152,20 +152,34 @@ export function ListUpdater({ data, cardList, index, lists, setShown }) {
 						<button
 							className={
 								"text-black p-2 rounded-xl " +
-								(list.id === data.listId
+								(list._id === data.listId
 									? "bg-yellow"
 									: "bg-white")
 							}
-							key={list.id}
+							key={list._id}
 							onClick={() => {
-								if (list.id === data.listId) return;
+								if (list._id === data.listId) return;
+
+								const runner = async () => {
+									await fetch("/api/card/", {
+										method: "PATCH",
+										headers: {
+											"Content-Type": "application/json",
+										},
+										body: JSON.stringify({
+											query: { _id: data._id },
+											update: { listId: list._id },
+										})
+									});
+								}
 
 								setIsSubmit(true);
 
-								cardList.splice(index, 1);
-								console.log(cardList);
+								runner();
 
-								data.listId = list.id;
+								cardList.splice(index, 1);
+
+								data.listId = list._id;
 								list.cards.push(data);
 
 								forceUpdate();
@@ -232,7 +246,7 @@ export function ArchiveUpdater({ data, cardList, index, setShown }) {
 			setShown(false);
 			forceUpdate();
 		}
-	}, [hasDeleted, isSubmit]);
+	}, [hasDeleted, isSubmit, cardList, data, forceUpdate, index, setShown]);
 
 	data.isArchived = true; // set archived
 	return (

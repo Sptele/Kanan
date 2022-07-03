@@ -28,7 +28,7 @@ export default function ListCreator({ lists, boardId, setShown }) {
 
 		lists.push(data);
 		setShown(false);
-	}, [hasSubmitted]);
+	}, [hasSubmitted, lists, data, setShown]);
 
 	const submit = () => {
 		setHasSubmitted(true);

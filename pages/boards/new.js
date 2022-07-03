@@ -28,7 +28,7 @@ export default function New() {
 		runner();
 
 		router.push("/boards/" + data._id);
-	}, [isSubmitting]);
+	}, [isSubmitting, data, router]);
 
 	return (
 		<Layout
@@ -54,7 +54,7 @@ export default function New() {
 					</form>
 					{isSubmitting && (
 						<div className="flex flex-row gap-2 justify-center">
-							<Image src="/loading.svg" width="16" height="16" />
+							<Image src="/loading.svg" width="16" height="16" alt={"A spinning gear to signify loading."} />
 							<h6 className='text-xs text-red'>
 								Redirecting...
 							</h6>

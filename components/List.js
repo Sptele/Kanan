@@ -1,24 +1,23 @@
-import Card from "./Card";
+import { ClosedCard } from "./card";
 import getTimeState from "../util/get-time-state";
 import { useState, useContext } from "react";
-import CardCreator from "./creators/CardCreator";
 import { CallbackContext } from "../pages/boards/[id]";
+import Link from "next/link";
 
-function CardRenderer({ cards, showCardCreator, setShowCardCreator }) {
+function CardRenderer({ cards, id }) {
 	return (
 		<div className='flex flex-col'>
-			<button
-				className='bg-[#000000bd] text-center rounded-md text-white mx-4 mt-4 p-4 h-14 '
-				onClick={() => setShowCardCreator(!showCardCreator)}>
-				Add a Card +
-			</button>
+			<Link href={`/cards/new/${id}`}>
+				<a className='bg-[#000000bd] text-center rounded-md text-white mx-4 mt-4 p-4 h-14 '>
+					Add a Card +
+				</a>
+			</Link>
 			{cards
 				.filter((obj) => !obj.isArchived)
 				.map((obj, i) => (
-					<Card
+					<ClosedCard
 						key={obj._id}
 						data={obj}
-						cardList={cards}
 						myIndex={i}
 					/>
 				))}
@@ -28,28 +27,9 @@ function CardRenderer({ cards, showCardCreator, setShowCardCreator }) {
 
 export default function List({ title, id, cards, lists }) {
 	const [isOpen, setIsOpen] = useState(true);
-	const [showCardCreator, setShowCardCreator] = useState(false);
 	const forceUpdate = useContext(CallbackContext);
 
-	if (showCardCreator) {
-		return (
-			<CardCreator
-				cards={cards}
-				listId={id}
-				setShown={setShowCardCreator}
-			/>
-		);
-	}
-
 	let bgColor = "bg-black";
-
-	/*
-		(data.isUrgent || timeState === -1 ? " border-l-red border-l-4 " : "") +
-				(timeState === -1 ? " bg-rose-600" : "") + 
-				(timeState === 0 ? " border-l-orange-500 border-l-4" : "") +
-				(timeState === 1 ? " border-l-[green] border-l-4" : "")
-	*/
-
 	cards.forEach((card) => {
 		card.creationDate = new Date(card.creationDate);
 		card.dueDate = new Date(card.dueDate);
@@ -121,8 +101,7 @@ export default function List({ title, id, cards, lists }) {
 					{isOpen ? (
 						<CardRenderer
 							cards={cards}
-							showCardCreator={showCardCreator}
-							setShowCardCreator={setShowCardCreator}
+							id={id}
 						/>
 					) : (
 						<h6
@@ -130,12 +109,9 @@ export default function List({ title, id, cards, lists }) {
 								`text-white text-center m-2 p-1 rounded-full ` +
 								bgColor
 							}>
-							<button
-								onClick={() =>
-									setShowCardCreator(!showCardCreator)
-								}>
-								{cards.length > 0 ? cards.length : "+"}
-							</button>
+							<Link href={`/cards/new/${id}`}>
+								<a> {cards.length > 0 ? cards.length : "+"}</a>
+							</Link>
 						</h6>
 					)}
 				</div>
