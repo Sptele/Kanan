@@ -1,5 +1,5 @@
 import { DateTimePicker } from "react-rainbow-components";
-import { CallbackContext } from "../pages/board";
+import { CallbackContext } from "../pages/boards/[id]";
 import { useContext, useState, useEffect } from "react";
 
 const handleSubmit = (setShown, isSubmit, setIsSubmit, data, toUpdate) => {

@@ -8,8 +8,8 @@ import randId from "./random-id";
  * @param {String} linkToProfilePicture A URL link as a String to the profile picture.
  * @returns an Object representing this data.
  */
-export function createMember(name, email, biography, role, _id = randId()) {
-	return { _id, name, email, biography, role };
+export function createMember(name, email, biography, role, isSignedIn, _id = randId()) {
+	return { _id, name, email, biography, role, isSignedIn };
 }
 
 /**
@@ -63,12 +63,12 @@ export function createCard(
 }
 
 /**
- * 
- * @param {String} title 
- * @param {String} boardId 
- * @param {Array.<Cards>} cards 
- * @param {String} _id 
- * @returns 
+ *
+ * @param {String} title
+ * @param {String} boardId
+ * @param {Array.<Cards>} cards
+ * @param {String} _id
+ * @returns
  */
 export function createList(title, boardId, cards, _id = randId()) {
 	return {
@@ -76,5 +76,12 @@ export function createList(title, boardId, cards, _id = randId()) {
 		title,
 		boardId,
 		cards,
+	};
+}
+
+export function createBoard(title, _id = randId()) {
+	return {
+		_id,
+		title,
 	};
 }

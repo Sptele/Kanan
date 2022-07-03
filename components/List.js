@@ -2,7 +2,7 @@ import Card from "./Card";
 import getTimeState from "../util/get-time-state";
 import { useState, useContext } from "react";
 import CardCreator from "./creators/CardCreator";
-import { CallbackContext } from "../pages/board";
+import { CallbackContext } from "../pages/boards/[id]";
 
 function CardRenderer({ cards, showCardCreator, setShowCardCreator }) {
 	return (

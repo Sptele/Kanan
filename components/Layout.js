@@ -16,7 +16,7 @@ export default function Layout({ title, description, children }) {
 				/>
 			</Head>
 			<div className='bg-teal min-h-screen grid grid-rows-board'>
-				<Link href='/board'>
+				<Link href='/profile'>
 					<a>
 						<h1 className='text-center text-black'>Kanan</h1>
 					</a>

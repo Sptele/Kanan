@@ -16,7 +16,7 @@ import {
 	ArchiveUpdater,
 } from "./card-updaters";
 
-import { ListsContext } from "../pages/board";
+import { ListsContext } from "../pages/boards/[id]";
 
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -44,7 +44,7 @@ let OpenContext = createContext();
 function Comment({ sender }) {
 	return (
 		<div className="flex flex-row gap-2">
-			<ProfilePicture name={sender.sender.name} className="mt-4" />
+			<ProfilePicture name={sender.sender.name} className="mt-4 ml-4" />
 			<div className="flex flex-col mt-2">
 				<h6>
 					{sender.sender.name}

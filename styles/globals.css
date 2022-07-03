@@ -65,7 +65,22 @@
 		@apply box-border;
 	}
 
-	input[type="text"] {
+	input[type="text"],
+	input[type="password"],
+	input[type="email"],
+	input[type="url"],
+	input[type="search"],
+	input[type="tel"],
+	input[type="number"],
+	input[type="date"],
+	input[type="month"],
+	input[type="week"],
+	input[type="time"],
+	input[type="datetime"],
+	input[type="datetime-local"],
+	input[type="color"],
+	textarea,
+	select {
 		@apply border-black;
 		@apply border-2;
 		@apply m-2;
