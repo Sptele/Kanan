@@ -139,7 +139,7 @@ function CreateMember({ setShown, allMembers }) {
 
 function MemberShow({ member }) {
 	return (
-		<div className="flex flex-col justify-center items-center gap-4 mt-8">
+		<div className='flex flex-col justify-center items-center gap-4 mt-8'>
 			<p className='text-xs text-slate-500 text-center m-auto w-36'>
 				{member.role.toUpperCase()}
 			</p>
@@ -162,7 +162,7 @@ function ClosedBoard({ board, showLoader }) {
 	return (
 		<Link href={`/boards/${board._id}`}>
 			<a
-				className='p-2 w-full bg-yellow text-black rounded-xl'
+				className='p-2 w-full bg-yellow text-black rounded-xl text-center'
 				onClick={() => showLoader(true)}>
 				{board.title}
 			</a>
@@ -213,15 +213,17 @@ function Profile() {
 									Create a new board...
 								</a>
 							</Link>
-							{boards.map((board) => {
-								return (
-									<ClosedBoard
-										key={board._id}
-										board={board}
-										showLoader={setIsLoading}
-									/>
-								);
-							})}
+							<div className='grid grid-rows-6 grid-cols-3'>
+								{boards.map((board) => {
+									return (
+										<ClosedBoard
+											key={board._id}
+											board={board}
+											showLoader={setIsLoading}
+										/>
+									);
+								})}
+							</div>
 						</div>
 					</div>
 				</div>

@@ -7,7 +7,6 @@ import { getAllCards } from "../../db/card";
 import { getAllBoards, getBoard } from "../../db/board";
 import useSWR, { SWRConfig } from "swr";
 import fetcher from "../../util/fetcher";
-import Head from "next/head";
 
 function ListRenderer({ lists, boardId }) {
 	const [isOpen, setIsOpen] = useState(false);
@@ -69,26 +68,26 @@ function Board() {
 	const [lists, setLists] = useState(listsR);
 
 	return (
-		<CallbackContext.Provider value={forceUpdate}>
-			<ListsContext.Provider value={[lists, setLists]}>
-				<ListRenderer
-					lists={lists}
-					boardId={board._id}
-				/>
-			</ListsContext.Provider>
-		</CallbackContext.Provider>
+		<Layout
+			title={`${board.title} - Kanan`}
+			description={`${board.title} from Kanan.`}>
+			<CallbackContext.Provider value={forceUpdate}>
+				<ListsContext.Provider value={[lists, setLists]}>
+					<ListRenderer
+						lists={lists}
+						boardId={board._id}
+					/>
+				</ListsContext.Provider>
+			</CallbackContext.Provider>
+		</Layout>
 	);
 }
 
 export default function Page({ fallback }) {
 	return (
-		<Layout
-			title={"Loading..."}
-			description='desc'>
-			<SWRConfig value={{ fallback }}>
-				<Board />
-			</SWRConfig>
-		</Layout>
+		<SWRConfig value={{ fallback }}>
+			<Board />
+		</SWRConfig>
 	);
 }
 
