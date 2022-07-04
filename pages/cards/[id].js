@@ -1,15 +1,13 @@
 import { OpenedCard } from "../../components/card";
 import { getCard, getAllCards } from "../../db/card";
 import { getAllLists, getList } from "../../db/list";
+import { SWRConfig } from "swr";
 
-export default function DisplayCard({ data, cardList, index, lists }) {
+export default function Page({ fallback }) {
 	return (
-		<OpenedCard
-			data={data}
-			cardList={cardList}
-			index={index}
-			lists={lists}
-		/>
+		<SWRConfig value={{ fallback }}>
+			<OpenedCard />
+		</SWRConfig>
 	);
 }
 
@@ -28,10 +26,12 @@ export async function getStaticProps({ params }) {
 
 	return {
 		props: {
-			data,
-			cardList,
-			index,
-			lists: await getAllLists(),
+			fallback: {
+				"/api/data/": data,
+				"/api/cardList/": cardList,
+				"/api/index/": index,
+				"/api/lists/": await getAllLists(),
+			},
 		},
 	};
 }

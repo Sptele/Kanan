@@ -18,7 +18,7 @@ function CardRenderer({ cards, id }) {
 					<ClosedCard
 						key={obj._id}
 						data={obj}
-						myIndex={i}
+						index={i}
 					/>
 				))}
 		</div>

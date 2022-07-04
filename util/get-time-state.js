@@ -1,4 +1,6 @@
 export default function getTimeState(dueDate) {
+	if (!dueDate) return;
+
 	const timeToDue = dueDate.getTime() - new Date().getTime();
 
 	if (timeToDue <= 0) {

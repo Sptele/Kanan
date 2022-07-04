@@ -6,6 +6,8 @@ import { createMember } from "../util/creation-factory";
 import { useState } from "react";
 import { getAllBoards } from "../db/board";
 import Loading from "../components/Loading";
+import useSWR, { SWRConfig } from "swr";
+import fetcher from "../util/fetcher";
 
 function CreateMember({ setShown, allMembers }) {
 	const [data, setData] = useState(createMember("", "", "", "", true));
@@ -137,7 +139,7 @@ function CreateMember({ setShown, allMembers }) {
 
 function MemberShow({ member }) {
 	return (
-		<>
+		<div className="flex flex-col justify-center items-center gap-4 mt-8">
 			<p className='text-xs text-slate-500 text-center m-auto w-36'>
 				{member.role.toUpperCase()}
 			</p>
@@ -151,8 +153,8 @@ function MemberShow({ member }) {
 					<h4>{member.email}</h4>
 				</a>
 			</Link>
-			<p className='w-80 m-auto'>{member.biography}</p>
-		</>
+			<p className='w-80'>{member.biography}</p>
+		</div>
 	);
 }
 
@@ -168,9 +170,12 @@ function ClosedBoard({ board, showLoader }) {
 	);
 }
 
-export default function Profile({ all, boards }) {
+function Profile() {
 	const [isOpen, setIsOpen] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
+
+	const { data: all } = useSWR("/api/members/", fetcher);
+	const { data: boards } = useSWR("/api/boards/", fetcher);
 
 	const member = all.find((member) => member.isSignedIn);
 
@@ -193,7 +198,7 @@ export default function Profile({ all, boards }) {
 					<div className='flex flex-col gap-4 text-center'>
 						{member && <MemberShow member={member} />}
 						<button
-							className='p-2 text-black bg-white rounded-full w-20 m-auto'
+							className='p-2 text-black bg-white rounded-full w-40 m-auto'
 							onClick={() => setIsOpen(!isOpen)}>
 							Create New Profile
 						</button>
@@ -225,14 +230,24 @@ export default function Profile({ all, boards }) {
 	);
 }
 
+export default function Page({ fallback }) {
+	return (
+		<SWRConfig value={{ fallback }}>
+			<Profile />
+		</SWRConfig>
+	);
+}
+
 export async function getStaticProps() {
 	const all = await getAllMembers();
 	const boards = await getAllBoards();
 
 	return {
 		props: {
-			all,
-			boards,
+			fallback: {
+				"/api/members/": all,
+				"/api/boards/": boards,
+			},
 		},
 	};
 }

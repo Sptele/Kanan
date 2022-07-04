@@ -5,6 +5,9 @@ import ListCreator from "../../components/creators/ListCreator";
 import { getAllLists } from "../../db/list";
 import { getAllCards } from "../../db/card";
 import { getAllBoards, getBoard } from "../../db/board";
+import useSWR, { SWRConfig } from "swr";
+import fetcher from "../../util/fetcher";
+import Head from "next/head";
 
 function ListRenderer({ lists, boardId }) {
 	const [isOpen, setIsOpen] = useState(false);
@@ -55,23 +58,36 @@ function ListRenderer({ lists, boardId }) {
 export const ListsContext = createContext();
 export const CallbackContext = createContext();
 
-export default function Board({ listsR, board }) {
-	const [_, forceUpdate] = useReducer((x) => x + 1, 0);
+function Board() {
+	const { data: listsR } = useSWR("/api/lists/", fetcher);
+	const { data: board, loading: boardLoading } = useSWR(
+		"/api/boards/",
+		fetcher
+	);
 
+	const [_, forceUpdate] = useReducer((x) => x + 1, 0);
 	const [lists, setLists] = useState(listsR);
 
 	return (
+		<CallbackContext.Provider value={forceUpdate}>
+			<ListsContext.Provider value={[lists, setLists]}>
+				<ListRenderer
+					lists={lists}
+					boardId={board._id}
+				/>
+			</ListsContext.Provider>
+		</CallbackContext.Provider>
+	);
+}
+
+export default function Page({ fallback }) {
+	return (
 		<Layout
-			title={`${board.title} - Kanan`}
+			title={"Loading..."}
 			description='desc'>
-			<CallbackContext.Provider value={forceUpdate}>
-				<ListsContext.Provider value={[lists, setLists]}>
-					<ListRenderer
-						lists={lists}
-						boardId={board._id}
-					/>
-				</ListsContext.Provider>
-			</CallbackContext.Provider>
+			<SWRConfig value={{ fallback }}>
+				<Board />
+			</SWRConfig>
 		</Layout>
 	);
 }
@@ -104,8 +120,10 @@ export async function getStaticProps({ params }) {
 
 	return {
 		props: {
-			listsR: JSON.parse(JSON.stringify(listsR)),
-			board,
+			fallback: {
+				"/api/lists/": JSON.parse(JSON.stringify(listsR)),
+				"/api/boards/": JSON.parse(JSON.stringify(board)),
+			},
 		},
 	};
 }
