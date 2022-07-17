@@ -16,6 +16,7 @@ import {
 } from "./card-updaters";
 import Link from "next/link";
 import ProfilePicture from "./ProfilePicture";
+import Head from "next/head";
 
 function Comment({ sender }) {
 	return (
@@ -105,27 +106,29 @@ export function OpenedCard() {
 
 	return (
 		<>
-			{isTitleModalOpen ? (
+			<Head>
+				<title>{data.title}</title>
+			</Head>
+			<div className={!isTitleModalOpen && "hidden"}>
 				<TitleUpdater
 					data={data}
 					setShown={setIsTitleModalOpen}
 				/>
-			) : null}
-			{isDescModalOpen ? (
+			</div>
+			<div className={!isDescModalOpen && "hidden"}>
 				<DescriptionUpdater
 					data={data}
 					setShown={setIsDescModalOpen}
 				/>
-			) : null}
-
-			{isDueDateModalOpen ? (
+			</div>
+			<div className={!isDueDateModalOpen && "hidden"}>
 				<DueDateUpdater
 					data={data}
 					setShown={setIsDueDateModalOpen}
 				/>
-			) : null}
+			</div>
 
-			{isListModalOpen ? (
+			<div className={!isListModalOpen && "hidden"}>
 				<ListUpdater
 					data={data}
 					cardList={cardList.cards}
@@ -133,16 +136,16 @@ export function OpenedCard() {
 					lists={lists}
 					setShown={setIsListModalOpen}
 				/>
-			) : null}
+			</div>
 
-			{isArchiveModalOpen ? (
+			<div className={!isArchiveModalOpen && "hidden"}>
 				<ArchiveUpdater
 					data={data}
 					cardList={cardList.cards}
 					index={index}
 					setShown={setIsArchiveModalOpen}
 				/>
-			) : null}
+			</div>
 
 			<div
 				className={
@@ -151,7 +154,8 @@ export function OpenedCard() {
 						? " border-red border-4 "
 						: "") +
 					(timeState === 0 ? " border-orange-500 border-4" : "") +
-					(timeState === 1 ? " border-[green] border-4" : "")
+					(timeState === 1 ? " border-[green] border-4" : "") +
+					(data.isArchived ? " border-l-[yellow] border-l-8" : "")
 				}>
 				<div className='w-[75%]'>
 					<div className='flex flex-row'>
@@ -168,6 +172,9 @@ export function OpenedCard() {
 					</h4>
 					<div className='text-lg border-black border-4 border-solid p-1 w-[100%]'>
 						<strong>Description:</strong>
+						<h2 className={!data.isArchived && "hidden"}>
+							[ARCHIVED]
+						</h2>
 						<ReactMarkdown remarkPlugins={[remarkGfm]}>
 							{data.description}
 						</ReactMarkdown>
@@ -177,6 +184,7 @@ export function OpenedCard() {
 						<button className='p-2 px-4 bg-yellow border-2 border-black rounded-xl font-extrabold'>
 							+
 						</button>
+						
 					</div>
 					<CommentRenderer comments={data.comments} />
 				</div>
@@ -236,9 +244,7 @@ export function ClosedCard({ data, index }) {
 	const timeState = getTimeState(data.dueDate);
 
 	if (isClicked) {
-		return (
-			<CardSkeleton />
-		);
+		return <CardSkeleton />;
 	}
 
 	return (

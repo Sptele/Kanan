@@ -1,6 +1,5 @@
 import { DateTimePicker } from "react-rainbow-components";
-import { CallbackContext } from "../pages/boards/[id]";
-import { useContext, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 
 const handleSubmit = (setShown, isSubmit, setIsSubmit, data, toUpdate) => {
 	if (!isSubmit) return;
@@ -129,8 +128,6 @@ export function DueDateUpdater({ data, setShown }) {
 }
 
 export function ListUpdater({ data, cardList, index, lists, setShown }) {
-	const forceUpdate = useContext(CallbackContext);
-
 	const [isSubmit, setIsSubmit] = useState(false);
 	useEffect(
 		() => handleSubmit(setShown, isSubmit, setIsSubmit, data, "listId"),
@@ -169,9 +166,9 @@ export function ListUpdater({ data, cardList, index, lists, setShown }) {
 										body: JSON.stringify({
 											query: { _id: data._id },
 											update: { listId: list._id },
-										})
+										}),
 									});
-								}
+								};
 
 								setIsSubmit(true);
 
@@ -182,7 +179,6 @@ export function ListUpdater({ data, cardList, index, lists, setShown }) {
 								data.listId = list._id;
 								list.cards.push(data);
 
-								forceUpdate();
 								setShown(false);
 							}}>
 							{list.title.length > 7
@@ -207,7 +203,6 @@ export function ArchiveUpdater({ data, cardList, index, setShown }) {
 	const [willDelete, setWillDelete] = useState(false);
 	const [hasDeleted, setHasDeleted] = useState(false);
 	const [isSubmit, setIsSubmit] = useState(false);
-	const forceUpdate = useContext(CallbackContext);
 
 	useEffect(() => {
 		if (hasDeleted) {
@@ -226,7 +221,8 @@ export function ArchiveUpdater({ data, cardList, index, setShown }) {
 			cardList.splice(index, 1);
 			setWillDelete(false);
 			setHasDeleted(false);
-			forceUpdate();
+
+			router.push(`/boards/${data.boardId}`);
 		} else if (isSubmit) {
 			const runner = async () => {
 				await fetch("/api/card", {
@@ -244,9 +240,10 @@ export function ArchiveUpdater({ data, cardList, index, setShown }) {
 			runner();
 
 			setShown(false);
-			forceUpdate();
+
+			router.push(`/boards/${data.boardId}`);
 		}
-	}, [hasDeleted, isSubmit, cardList, data, forceUpdate, index, setShown]);
+	}, [hasDeleted, isSubmit, cardList, data, index, setShown]);
 
 	data.isArchived = true; // set archived
 	return (
@@ -263,6 +260,7 @@ export function ArchiveUpdater({ data, cardList, index, setShown }) {
 					onClick={() => {
 						data.isArchived = false;
 						setShown(false);
+						router.push(`/boards/${data.boardId}`);
 					}}
 					value={data.isArchived ? "Cancel" : "Archive"}
 				/>

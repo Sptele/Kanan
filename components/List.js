@@ -110,7 +110,7 @@ export default function List({ title, id, cards, lists }) {
 								bgColor
 							}>
 							<Link href={`/cards/new/${id}`}>
-								<a> {cards.length > 0 ? cards.length : "+"}</a>
+								<a className="text-white"> {cards.length > 0 ? cards.length : "+"}</a>
 							</Link>
 						</h6>
 					)}

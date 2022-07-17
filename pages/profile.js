@@ -177,6 +177,10 @@ function Profile() {
 	const { data: all } = useSWR("/api/members/", fetcher);
 	const { data: boards } = useSWR("/api/boards/", fetcher);
 
+	if (!all || !boards) {
+		return <h1>Unable to connect to Database. Try again...</h1>
+	}
+
 	const member = all.find((member) => member.isSignedIn);
 
 	if (isOpen) {
@@ -213,7 +217,7 @@ function Profile() {
 									Create a new board...
 								</a>
 							</Link>
-							<div className='grid grid-rows-6 grid-cols-3'>
+							<div className='grid grid-rows-6 grid-cols-3 gap-2'>
 								{boards.map((board) => {
 									return (
 										<ClosedBoard

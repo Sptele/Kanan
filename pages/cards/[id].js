@@ -1,6 +1,6 @@
 import { OpenedCard } from "../../components/card";
 import { getCard, getAllCards } from "../../db/card";
-import { getAllLists, getList } from "../../db/list";
+import { getAllLists } from "../../db/list";
 import { SWRConfig } from "swr";
 
 export default function Page({ fallback }) {
@@ -21,7 +21,8 @@ export async function getStaticPaths() {
 
 export async function getStaticProps({ params }) {
 	const data = await getCard({ _id: params.id });
-	const cardList = await getList({ _id: data.listId });
+	const allLists = await getAllLists();
+	const cardList = allLists.filter((list) => list._id === data.listId)[0];
 	const index = cardList.cards.findIndex((card) => card._id === data._id);
 
 	return {
@@ -30,7 +31,7 @@ export async function getStaticProps({ params }) {
 				"/api/data/": data,
 				"/api/cardList/": cardList,
 				"/api/index/": index,
-				"/api/lists/": await getAllLists(),
+				"/api/lists/": allLists,
 			},
 		},
 	};

@@ -14,6 +14,11 @@ module.exports = {
 				source: "/boards",
 				destination: "/profile",
 				permanent: true
+			},
+			{
+				source: "/",
+				destination: "/profile",
+				permanent: true
 			}
 		]
 	}

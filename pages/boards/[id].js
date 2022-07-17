@@ -59,10 +59,7 @@ export const CallbackContext = createContext();
 
 function Board() {
 	const { data: listsR } = useSWR("/api/lists/", fetcher);
-	const { data: board, loading: boardLoading } = useSWR(
-		"/api/boards/",
-		fetcher
-	);
+	const { data: board } = useSWR("/api/boards/", fetcher);
 
 	const [_, forceUpdate] = useReducer((x) => x + 1, 0);
 	const [lists, setLists] = useState(listsR);
