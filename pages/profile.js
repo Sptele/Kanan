@@ -8,28 +8,36 @@ import { getAllBoards } from "../db/board";
 import Loading from "../components/Loading";
 import useSWR, { SWRConfig } from "swr";
 import fetcher from "../util/fetcher";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
 
-function CreateMember({ setShown, allMembers }) {
-	const [data, setData] = useState(createMember("", "", "", "", true));
+function CreateMember({ setShown, currMember, allMembers }) {
+	const [data, setData] = useState(currMember);
+	const [isSubmitting, setIsSubmitting] = useState(false);
+	const router = useRouter();
 
-	// TODO: create support for multiple profiles
+	useEffect(() => {
+		if (!isSubmitting) return;
 
-	const submit = () => {
 		const runner = async () => {
 			await fetch("/api/member", {
-				method: "POST",
+				method: "PUT",
 				headers: {
 					"Content-Type": "application/json",
 				},
-				body: JSON.stringify(data),
+				body: JSON.stringify({
+					query: { _id: data._id },
+					replacement: data,
+				}),
 			});
 		};
 
 		runner();
 
 		allMembers.push(data);
+		router.reload("/profile");
 		setShown(false);
-	};
+	}, [isSubmitting]);
 
 	return (
 		<div className='flex flex-col gap-4 p-4 text-center mr-4'>
@@ -41,7 +49,7 @@ function CreateMember({ setShown, allMembers }) {
 						<input
 							className='w-full p-2 rounded-lg'
 							type='text'
-							placeholder='John Doe'
+							value={data.name}
 							onChange={(e) => {
 								setData(
 									createMember(
@@ -49,7 +57,8 @@ function CreateMember({ setShown, allMembers }) {
 										data.email,
 										data.biography,
 										data.role,
-										data.isSignedIn
+										data.isSignedIn,
+										data._id
 									)
 								);
 							}}
@@ -60,7 +69,7 @@ function CreateMember({ setShown, allMembers }) {
 						<input
 							className='w-full p-2 rounded-lg'
 							type='email'
-							placeholder='john.doe@email.com'
+							value={data.email}
 							onChange={(e) => {
 								setData(
 									createMember(
@@ -68,7 +77,8 @@ function CreateMember({ setShown, allMembers }) {
 										e.target.value,
 										data.biography,
 										data.role,
-										data.isSignedIn
+										data.isSignedIn,
+										data._id
 									)
 								);
 							}}
@@ -79,7 +89,7 @@ function CreateMember({ setShown, allMembers }) {
 						<input
 							className='w-full p-2 rounded-lg'
 							type='text'
-							placeholder='Admin'
+							value={data.role}
 							onChange={(e) => {
 								setData(
 									createMember(
@@ -87,7 +97,8 @@ function CreateMember({ setShown, allMembers }) {
 										data.email,
 										data.biography,
 										e.target.value,
-										data.isSignedIn
+										data.isSignedIn,
+										data._id
 									)
 								);
 							}}
@@ -97,7 +108,7 @@ function CreateMember({ setShown, allMembers }) {
 						<label className='text-sm'>Biography</label>
 						<textarea
 							className='w-full p-2 rounded-lg'
-							placeholder='My biography'
+							value={data.biography}
 							rows='7'
 							col='50'
 							onChange={(e) => {
@@ -107,7 +118,8 @@ function CreateMember({ setShown, allMembers }) {
 										data.email,
 										e.target.value,
 										data.role,
-										data.isSignedIn
+										data.isSignedIn,
+										data._id
 									)
 								);
 							}}
@@ -123,11 +135,11 @@ function CreateMember({ setShown, allMembers }) {
 						<div className='flex flex-col m-auto mt-2'>
 							<input
 								type='button'
-								value='Create'
+								value='Edit'
 								className={
 									"bg-black text-white p-4 rounded-full"
 								}
-								onClick={submit}
+								onClick={() => setIsSubmitting(!isSubmitting)}
 							/>
 						</div>
 					</div>
@@ -178,7 +190,7 @@ function Profile() {
 	const { data: boards } = useSWR("/api/boards/", fetcher);
 
 	if (!all || !boards) {
-		return <h1>Unable to connect to Database. Try again...</h1>
+		return <h1>Unable to connect to Database. Try again...</h1>;
 	}
 
 	const member = all.find((member) => member.isSignedIn);
@@ -187,6 +199,7 @@ function Profile() {
 		return (
 			<CreateMember
 				setShown={setIsOpen}
+				currMember={member}
 				allMembers={all}
 			/>
 		);
@@ -200,11 +213,13 @@ function Profile() {
 				description='Your Profile Page, where you can find and update your information as well as your boards.'>
 				<div className='grid grid-cols-2 grid-rows-1 gap-4'>
 					<div className='flex flex-col gap-4 text-center'>
-						{member && <MemberShow member={member} />}
+						<div className={!member ? "hidden" : undefined}>
+							<MemberShow member={member} />
+						</div>
 						<button
-							className='p-2 text-black bg-white rounded-full w-40 m-auto'
+							className='p-2 text-black bg-white rounded-full w-40 mx-auto'
 							onClick={() => setIsOpen(!isOpen)}>
-							Create New Profile
+							Edit Profile
 						</button>
 					</div>
 					<div className='bg-white flex flex-col gap-2 rounded-xl min-h-full'>

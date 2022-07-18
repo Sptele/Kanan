@@ -1,4 +1,10 @@
-import { deleteMember, insertMember, updateMember, replaceMember } from "../../db/member";
+import {
+	deleteMember,
+	insertMember,
+	updateMember,
+	replaceMember,
+	getMember,
+} from "../../db/member";
 
 /**
  * This page handles all requests for the BOARD collection in mongodb.
@@ -6,9 +12,7 @@ import { deleteMember, insertMember, updateMember, replaceMember } from "../../d
 export default async function handler(req, res) {
 	try {
 		if (req.method === "GET") {
-			res.status(200)
-				.setHeader("content-type", "application/json")
-				.json({ message: "Hello World!" });
+			await get(req, res);
 		} else if (req.method === "POST") {
 			await post(req, res);
 		} else if (req.method === "DELETE") {
@@ -20,6 +24,20 @@ export default async function handler(req, res) {
 		}
 	} catch (err) {
 		res.status(405).setHeader("content-type", "application/json").json(err);
+	}
+}
+
+async function get(req, res) {
+	try {
+		// Get data
+		const response = await getMember({ _id: req.body });
+
+		// Return with what was sent with status code 200
+		res.status(200)
+			.setHeader("content-type", "application/json")
+			.json(response);
+	} catch (error) {
+		throw error;
 	}
 }
 

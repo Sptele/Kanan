@@ -64,7 +64,7 @@ export default function CardCreator({ listId }) {
 
 		runner();
 
-		router.push(`/cards/${data._id}`)
+		router.push(`/cards/${data._id}`);
 
 		setIsSubmitting(false);
 	}, [isSubmitting, data]);
