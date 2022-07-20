@@ -19,6 +19,8 @@ function CreateMember({ setShown, currMember, allMembers }) {
 	useEffect(() => {
 		if (!isSubmitting) return;
 
+		console.log(data)
+
 		const runner = async () => {
 			await fetch("/api/member", {
 				method: "PUT",
@@ -30,19 +32,20 @@ function CreateMember({ setShown, currMember, allMembers }) {
 					replacement: data,
 				}),
 			});
+
+			router.reload("/profile");
 		};
 
 		runner();
 
 		allMembers.push(data);
-		router.reload("/profile");
 		setShown(false);
 	}, [isSubmitting]);
 
 	return (
 		<div className='flex flex-col gap-4 p-4 text-center mr-4'>
 			<div className='flex flex-col gap-4'>
-				<h1 className='text-2xl'>Add a new member...</h1>
+				<h1 className='text-2xl'>Edit your profile...</h1>
 				<form>
 					<div className='flex flex-col gap-4'>
 						<label className='text-sm'>Name</label>

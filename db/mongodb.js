@@ -64,6 +64,12 @@ export async function certifyCollection(name) {
 	return true;
 }
 
+export async function testConnection() {
+	const { db } = await connectToDatabase();
+
+	
+}
+
 export async function insertToCollection(collection, data) {
 	try {
 		const { db } = await connectToDatabase();

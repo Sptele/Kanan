@@ -67,7 +67,7 @@ export default function CardCreator({ listId }) {
 		router.push(`/cards/${data._id}`);
 
 		setIsSubmitting(false);
-	}, [isSubmitting, data]);
+	}, [isSubmitting, data, router]);
 
 	const submit = () => {
 		if (!data.title || data.title === "" || data.title === " ") {

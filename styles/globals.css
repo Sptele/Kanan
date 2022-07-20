@@ -11,7 +11,8 @@
 		@apply m-0;
 
 		@apply h-full;
-		@apply bg-green
+		@apply bg-green;
+		@apply overflow-y-auto;
 	}
 
 	h1,

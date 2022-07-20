@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import getTimeState from "../util/get-time-state";
 import { useRouter } from "next/router";
 import CardSkeleton from "./skeletons/CardSkeleton";
@@ -6,7 +6,7 @@ import { ReactMarkdown } from "react-markdown/lib/react-markdown";
 import remarkGfm from "remark-gfm";
 import useSWR from "swr";
 import fetcher from "../util/fetcher";
-import fixDates from "../util/fix-dates";
+import { fixDates, fixDate, formatDate } from "../util/dates";
 import {
 	ArchiveUpdater,
 	DescriptionUpdater,
@@ -17,8 +17,12 @@ import {
 import Link from "next/link";
 import ProfilePicture from "./ProfilePicture";
 import Head from "next/head";
+import { UserContext } from "../util/member-context";
+import { createComment } from "../util/creation-factory";
+import { useEffect } from "react";
 
 function Comment({ sender }) {
+	fixDate(sender.timeStamp);
 	return (
 		<div className='flex flex-row gap-2'>
 			<ProfilePicture
@@ -34,16 +38,88 @@ function Comment({ sender }) {
 				</h6>
 				<p>{sender.content}</p>
 				<p className='text-xs text-slate-500'>
-					{sender.timeStamp.toLocaleString(undefined, {
-						weekday: "long",
-						year: "numeric",
-						month: "long",
-						day: "numeric",
-						hour: "numeric",
-						minute: "numeric",
-					})}
+					{formatDate(sender.timeStamp)}
 				</p>
 			</div>
+		</div>
+	);
+}
+
+function CommentCreator({ cardId, allComments }) {
+	const member = useContext(UserContext);
+
+	const [data, setData] = useState(createComment(member, "", new Date()));
+	const [isOpen, setIsOpen] = useState(false);
+	const [isSubmitting, setIsSubmitting] = useState(false);
+
+	useEffect(() => {
+		if (!isSubmitting) return;
+		if (data.content.length === 0) {
+			setIsOpen(false);
+			return;
+		}
+
+		allComments.push(data);
+
+		const runner = async () => {
+			await fetch("/api/card/", {
+				method: "PATCH",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					query: { _id: cardId },
+					update: { comments: allComments },
+				}),
+			});
+		};
+
+		runner();
+
+		setIsOpen(false);
+		setIsSubmitting(false);
+	}, [isSubmitting]);
+
+	return (
+		<div>
+			{isOpen ? (
+				<form>
+					<input
+						type='text'
+						onChange={(e) =>
+							setData(
+								createComment(
+									data.sender,
+									e.target.value,
+									data.timeStamp,
+									data._id
+								)
+							)
+						}
+						className='p-1'
+						placeholder='Type a comment...'
+					/>
+					<input
+						type='button'
+						onClick={(e) => {
+							e.preventDefault();
+							setIsSubmitting(!isSubmitting);
+						}}
+						className='rounded-full p-2 bg-black text-white'
+						value={data.content.length > 0 ? "Submit" : "Cancel"}
+					/>
+				</form>
+			) : (
+				<button
+					onClick={() => {
+						setIsOpen(!isOpen);
+					}}
+					className={
+						"p-2 px-4 bg-yellow border-2 border-black rounded-xl font-extrabold "
+					}>
+					+
+				</button>
+			)}
 		</div>
 	);
 }
@@ -83,6 +159,8 @@ export function OpenedCard() {
 	const { data: cardList } = useSWR("/api/cardList/", fetcher);
 	const { data: index } = useSWR("/api/index/", fetcher);
 	const { data: lists } = useSWR("/api/lists/", fetcher);
+
+	console.log(data);
 
 	const [isTitleModalOpen, setIsTitleModalOpen] = useState(false);
 	const [isDescModalOpen, setIsDescModalOpen] = useState(false);
@@ -181,10 +259,10 @@ export function OpenedCard() {
 					</div>
 					<div className='flex flex-row gap-1 mt-2'>
 						<h6 className='mt-2'>Comments:</h6>
-						<button className='p-2 px-4 bg-yellow border-2 border-black rounded-xl font-extrabold'>
-							+
-						</button>
-						
+						<CommentCreator
+							cardId={data._id}
+							allComments={data.comments}
+						/>
 					</div>
 					<CommentRenderer comments={data.comments} />
 				</div>
@@ -236,7 +314,8 @@ export function ClosedCard({ data, index }) {
 	const [isClicked, setIsClicked] = useState(false);
 	const router = useRouter();
 
-	const redirect = () => {
+	const redirect = (e) => {
+		e.preventDefault();
 		setIsClicked(true);
 		router.push("/cards/" + data._id);
 	};

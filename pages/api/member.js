@@ -73,6 +73,8 @@ async function drop(req, res) {
 
 async function replace(req, res) {
 	try {
+
+		console.log(req.body)
 		// Replace data
 		const response = await replaceMember(
 			req.body.query,
