@@ -69,7 +69,8 @@ export default function CardCreator({ listId }) {
 		setIsSubmitting(false);
 	}, [isSubmitting, data, router]);
 
-	const submit = () => {
+	const submit = (e) => {
+		e.preventDefault();
 		if (!data.title || data.title === "" || data.title === " ") {
 			// Missing title
 			setIsTitleError(true);
@@ -79,19 +80,19 @@ export default function CardCreator({ listId }) {
 		setIsSubmitting(true);
 	};
 
-	const handleKeyPress = (e) => {
-		escape(e);
-		//if (e.key === "Enter") submit();
+	const escape = (e) => {
+		e.preventDefault();
+		router.push(`/boards/${data.boardId}`);
 	};
 
-	const escape = (e) => {
-		if (e.key === "Escape") setShown(false);
-	};
+	const checkForEscKey = (e) => {
+		if (e.key === "Escape") escape(e);
+	}
 
 	return (
 		<form
 			className='p-4 fixed bg-white w-full h-full top-0 left-0 z-[100] overflow-auto'
-			onKeyDown={handleKeyPress}>
+			onKeyDown={checkForEscKey}>
 			<div className='m-auto w-[30rem]'>
 				<label htmlFor='card-creator-title'>
 					<span className='required'>* </span>Title:
@@ -119,7 +120,7 @@ export default function CardCreator({ listId }) {
 							)
 						);
 					}}
-					onKeyDown={handleKeyPress}
+					onKeyDown={checkForEscKey}
 				/>
 				<input
 					type='checkbox'
@@ -141,7 +142,7 @@ export default function CardCreator({ listId }) {
 							)
 						)
 					}
-					onKeyDown={handleKeyPress}
+					onKeyDown={checkForEscKey}
 				/>{" "}
 				<label htmlFor='card-creator-urgent'>Is Urgent?</label>
 			</div>
@@ -177,7 +178,7 @@ export default function CardCreator({ listId }) {
 								)
 							)
 						}
-						onKeyDown={escape}
+						onKeyDown={checkForEscKey}
 					/>
 				</div>
 				<div>
@@ -254,8 +255,8 @@ export default function CardCreator({ listId }) {
 					type='button'
 					value='Cancel'
 					className='bg-red text-white p-4 rounded-full m-auto'
-					onClick={() => setShown(false)}
-					onKeyDown={handleKeyPress}
+					onClick={escape}
+					onKeyDown={checkForEscKey}
 				/>
 				<div className='flex flex-col m-auto mt-2'>
 					<input
@@ -266,7 +267,6 @@ export default function CardCreator({ listId }) {
 							(isTitleError ? " border-2 border-red" : "")
 						}
 						onClick={submit}
-						onKeyDown={handleKeyPress}
 					/>
 					<p
 						className={

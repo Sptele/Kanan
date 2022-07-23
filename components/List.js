@@ -1,8 +1,9 @@
 import { ClosedCard } from "./card";
 import getTimeState from "../util/get-time-state";
-import { useState, useContext } from "react";
-import { CallbackContext } from "../pages/boards/[id]";
+import { useState, useContext, useReducer } from "react";
+import { LRContext, CallbackContext } from "../pages/boards/[id]";
 import Link from "next/link";
+import { fixDates } from "../util/dates";
 
 function CardRenderer({ cards, id }) {
 	return (
@@ -25,12 +26,15 @@ function CardRenderer({ cards, id }) {
 	);
 }
 
-export default function List({ title, id, cards, lists }) {
+export default function List({ title, id, cards, index, lists }) {
 	const [isOpen, setIsOpen] = useState(true);
 	const forceUpdate = useContext(CallbackContext);
+	const lrForceUpdate = useContext(LRContext);
+	const [_, myForceUpdate] = useReducer((x) => x + 1, 0);
+
 
 	let bgColor = "bg-black";
-	cards.forEach((card) => {
+	cards.forEach((card, i) => {
 		card.creationDate = new Date(card.creationDate);
 		card.dueDate = new Date(card.dueDate);
 
@@ -47,20 +51,16 @@ export default function List({ title, id, cards, lists }) {
 			onDragOver={(event) => event.preventDefault()}
 			onDrop={(event) => {
 				const data = JSON.parse(event.dataTransfer.getData("card"));
-				const cardList = JSON.parse(
-					event.dataTransfer.getData("cardList")
-				);
 				const cardIndex = JSON.parse(
 					event.dataTransfer.getData("cardIndex")
 				);
 
-				lists
-					.filter((obj) => obj._id === cardList)[0]
-					.cards.splice(cardIndex, 1);
-
 				data.listId = id;
-				data.creationDate = new Date(data.creationDate);
-				data.dueDate = new Date(data.dueDate);
+				fixDates(data);
+
+				lists[index].cards.splice(cardIndex, 1);
+				console.log(lists[index].cards)
+				cards.push(data);
 
 				const runner = async () => {
 					await fetch("/api/card/", {
@@ -72,18 +72,15 @@ export default function List({ title, id, cards, lists }) {
 							query: { _id: data._id },
 							update: {
 								listId: data.listId,
-								creationDate: data.creationDate,
-								dueDate: data.dueDate,
 							},
 						}),
 					});
 				};
 
-				cards.push(data);
-
 				runner();
-
+				lrForceUpdate();
 				forceUpdate();
+				myForceUpdate();
 			}}>
 			<div
 				className={
@@ -110,7 +107,10 @@ export default function List({ title, id, cards, lists }) {
 								bgColor
 							}>
 							<Link href={`/cards/new/${id}`}>
-								<a className="text-white"> {cards.length > 0 ? cards.length : "+"}</a>
+								<a className='text-white'>
+									{" "}
+									{cards.length > 0 ? cards.length : "+"}
+								</a>
 							</Link>
 						</h6>
 					)}

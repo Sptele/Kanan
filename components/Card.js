@@ -342,10 +342,6 @@ export function ClosedCard({ data, index }) {
 			draggable
 			onDragStart={(event) => {
 				event.dataTransfer.setData("card", JSON.stringify(data));
-				event.dataTransfer.setData(
-					"cardList",
-					JSON.stringify(data.listId)
-				);
 				event.dataTransfer.setData("cardIndex", JSON.stringify(index));
 
 				setIsDragging(true);

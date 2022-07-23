@@ -15,8 +15,10 @@ export function fixDate(date) {
  * Formats the date to a string in the format of "Wednesday, July 20, 2022 at 10:59 AM", or if it is recent (today or yesterday),
  * it will just show the time ("Today/Yesterday at 10:59 AM").
  * @param {Date} date - The Date to format
+ * @returns {string} The formatted date
  */
 export function formatDate(date) {
+	date = new Date(date);
 	const currDay = new Date();
 	if (currDay.toDateString() === date.toDateString()) {
 		// Today

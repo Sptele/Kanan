@@ -8,8 +8,11 @@ import { getAllBoards, getBoard } from "../../db/board";
 import useSWR, { SWRConfig } from "swr";
 import fetcher from "../../util/fetcher";
 
+export const LRContext = createContext();
+
 function ListRenderer({ lists, boardId }) {
 	const [isOpen, setIsOpen] = useState(false);
+	const [_, forceUpdate] = useReducer((x) => x + 1, 0);
 
 	if (isOpen) {
 		return (
@@ -23,15 +26,24 @@ function ListRenderer({ lists, boardId }) {
 
 	return (
 		<div className='flex gap-4'>
-			{lists.map((obj, i) => (
-				<List
-					key={obj._id}
-					id={obj._id}
-					title={obj.title}
-					cards={obj.cards}
-					lists={lists}
-				/>
-			))}
+			<LRContext.Provider value={forceUpdate}>
+				{lists.map((obj, i) => {
+					const myCards = obj.cards.filter(
+						(card) => card.listId === obj._id
+					);
+
+					return (
+						<List
+							key={obj._id}
+							id={obj._id}
+							title={obj.title}
+							cards={myCards}
+							lists={lists}
+							index={i}
+						/>
+					);
+				})}
+			</LRContext.Provider>
 			<button
 				className={
 					lists.length > 0
