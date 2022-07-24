@@ -4,6 +4,7 @@ import { useState, useContext, useReducer } from "react";
 import { LRContext, CallbackContext } from "../pages/boards/[id]";
 import Link from "next/link";
 import { fixDates } from "../util/dates";
+import { list } from "postcss";
 
 function CardRenderer({ cards, id }) {
 	return (
@@ -17,6 +18,7 @@ function CardRenderer({ cards, id }) {
 				.filter((obj) => !obj.isArchived)
 				.map((obj, i) => (
 					<ClosedCard
+						cardList={cards}
 						key={obj._id}
 						data={obj}
 						index={i}
@@ -26,12 +28,9 @@ function CardRenderer({ cards, id }) {
 	);
 }
 
-export default function List({ title, id, cards, index, lists }) {
+export default function List({ title, id, cards, lists }) {
 	const [isOpen, setIsOpen] = useState(true);
 	const forceUpdate = useContext(CallbackContext);
-	const lrForceUpdate = useContext(LRContext);
-	const [_, myForceUpdate] = useReducer((x) => x + 1, 0);
-
 
 	let bgColor = "bg-black";
 	cards.forEach((card, i) => {
@@ -46,41 +45,26 @@ export default function List({ title, id, cards, index, lists }) {
 		else if (timeState === 1) bgColor = "bg-[green]";
 	});
 
+
 	return (
 		<div
 			onDragOver={(event) => event.preventDefault()}
 			onDrop={(event) => {
-				const data = JSON.parse(event.dataTransfer.getData("card"));
-				const cardIndex = JSON.parse(
-					event.dataTransfer.getData("cardIndex")
-				);
+				// Grab the event data
+				const dataId = JSON.parse(event.dataTransfer.getData("id"));
+				const listId = JSON.parse(event.dataTransfer.getData("listId"));
 
-				data.listId = id;
-				fixDates(data);
+				if (id === listId) return; // same list
+ 
+				const data = lists.find((obj) => obj._id === listId).cards.find((obj) => obj._id === dataId);
+				const cards = lists.find(obj => obj._id === id).cards;
+				cards.splice(cards.indexOf(data), 1); // Remove any duplicates
 
-				lists[index].cards.splice(cardIndex, 1);
-				console.log(lists[index].cards)
+				// Push the data onto the current cards
+				data.listId = id; // Set new id
 				cards.push(data);
 
-				const runner = async () => {
-					await fetch("/api/card/", {
-						method: "PATCH",
-						headers: {
-							"Content-Type": "application/json",
-						},
-						body: JSON.stringify({
-							query: { _id: data._id },
-							update: {
-								listId: data.listId,
-							},
-						}),
-					});
-				};
-
-				runner();
-				lrForceUpdate();
 				forceUpdate();
-				myForceUpdate();
 			}}>
 			<div
 				className={

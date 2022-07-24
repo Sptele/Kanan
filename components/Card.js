@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useReducer, useState } from "react";
 import getTimeState from "../util/get-time-state";
 import { useRouter } from "next/router";
 import CardSkeleton from "./skeletons/CardSkeleton";
@@ -20,6 +20,7 @@ import Head from "next/head";
 import { UserContext } from "../util/member-context";
 import { createComment } from "../util/creation-factory";
 import { useEffect } from "react";
+import { LRContext } from "../pages/boards/[id]";
 
 function Comment({ sender }) {
 	fixDate(sender.timeStamp);
@@ -309,9 +310,11 @@ export function OpenedCard() {
 	);
 }
 
-export function ClosedCard({ data, index }) {
+export function ClosedCard({ data, cardList, index }) {
 	const [isDragging, setIsDragging] = useState(false);
 	const [isClicked, setIsClicked] = useState(false);
+	const [_, myForceUpdate] = useReducer((x) => x + 1, 0);
+
 	const router = useRouter();
 
 	const redirect = (e) => {
@@ -341,10 +344,14 @@ export function ClosedCard({ data, index }) {
 			}
 			draggable
 			onDragStart={(event) => {
-				event.dataTransfer.setData("card", JSON.stringify(data));
-				event.dataTransfer.setData("cardIndex", JSON.stringify(index));
+				// Remove this copy from the list
+				cardList.splice(index, 1);
 
+				// Data Transfer 
 				setIsDragging(true);
+				event.dataTransfer.setData("id", JSON.stringify(data._id));
+				event.dataTransfer.setData("listId", JSON.stringify(data.listId));
+				event.dataTransfer.effectAllowed = "move";
 			}}
 			onDragEnd={(_) => setIsDragging(false)}>
 			<p className='closed-card-title leading-4 text-black'>

@@ -27,7 +27,7 @@ function ListRenderer({ lists, boardId }) {
 	return (
 		<div className='flex gap-4'>
 			<LRContext.Provider value={forceUpdate}>
-				{lists.map((obj, i) => {
+				{lists.map((obj) => {
 					const myCards = obj.cards.filter(
 						(card) => card.listId === obj._id
 					);
@@ -39,7 +39,6 @@ function ListRenderer({ lists, boardId }) {
 							title={obj.title}
 							cards={myCards}
 							lists={lists}
-							index={i}
 						/>
 					);
 				})}
