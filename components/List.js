@@ -45,7 +45,6 @@ export default function List({ title, id, cards, lists }) {
 		else if (timeState === 1) bgColor = "bg-[green]";
 	});
 
-
 	return (
 		<div
 			onDragOver={(event) => event.preventDefault()}
@@ -55,14 +54,33 @@ export default function List({ title, id, cards, lists }) {
 				const listId = JSON.parse(event.dataTransfer.getData("listId"));
 
 				if (id === listId) return; // same list
- 
-				const data = lists.find((obj) => obj._id === listId).cards.find((obj) => obj._id === dataId);
-				const cards = lists.find(obj => obj._id === id).cards;
+
+				const data = lists
+					.find((obj) => obj._id === listId)
+					.cards.find((obj) => obj._id === dataId);
+				const cards = lists.find((obj) => obj._id === id).cards;
 				cards.splice(cards.indexOf(data), 1); // Remove any duplicates
 
 				// Push the data onto the current cards
 				data.listId = id; // Set new id
 				cards.push(data);
+
+				const runner = async () => {
+					await fetch("/api/card", {
+						method: "PATCH",
+						headers: {
+							"Content-Type": "application/json",
+						},
+						body: JSON.stringify({
+							query: { _id: data._id },
+							update: {
+								listId: data.listId,
+							},
+						}),
+					});
+				};
+
+				runner();
 
 				forceUpdate();
 			}}>
