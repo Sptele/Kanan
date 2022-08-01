@@ -2,6 +2,7 @@ import Head from "next/head";
 import Link from "next/link";
 import { useState } from "react";
 import Loading from "./Loading";
+import PageMeta from "./PageMeta";
 
 export default function Layout({ title, description, children }) {
 	const [shown, setShown] = useState(false);
@@ -9,17 +10,7 @@ export default function Layout({ title, description, children }) {
 	return (
 		<>
 			{shown && <Loading text={"Loading..."} />}
-			<Head>
-				<title>{title}</title>
-				<link
-					rel='icon'
-					href='/kanan.png'
-				/>
-				<meta
-					title={title}
-					description={description}
-				/>
-			</Head>
+			<PageMeta title={title} description={description} />
 			<div className='bg-teal min-h-screen grid grid-rows-board'>
 				<Link href='/profile'>
 					<a onClick={() => setShown(true)}>

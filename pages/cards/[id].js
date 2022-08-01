@@ -2,6 +2,8 @@ import { OpenedCard } from "../../components/card";
 import { getCard, getAllCards } from "../../db/card";
 import { getAllLists } from "../../db/list";
 import { SWRConfig } from "swr";
+import PageMeta from "../../components/PageMeta";
+
 
 export default function Page({ fallback }) {
 	return (

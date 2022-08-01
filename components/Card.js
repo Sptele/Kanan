@@ -20,25 +20,22 @@ import Head from "next/head";
 import { UserContext } from "../util/member-context";
 import { createComment } from "../util/creation-factory";
 import { useEffect } from "react";
-import { LRContext } from "../pages/boards/[id]";
+import PageMeta from "./PageMeta";
 
 function Comment({ sender }) {
 	fixDate(sender.timeStamp);
 	return (
-		<div className='flex flex-row gap-2'>
-			<ProfilePicture
-				name={sender.sender.name}
-				className='mt-4 ml-4'
-			/>
-			<div className='flex flex-col mt-2'>
+		<div className="flex flex-row gap-2">
+			<ProfilePicture name={sender.sender.name} className="mt-4 ml-4" />
+			<div className="flex flex-col mt-2">
 				<h6>
 					{sender.sender.name}
-					<span className='text-xs text-slate-500 font-extrabold'>
+					<span className="text-xs text-slate-500 font-extrabold">
 						{sender.sender.role}
 					</span>
 				</h6>
 				<p>{sender.content}</p>
-				<p className='text-xs text-slate-500'>
+				<p className="text-xs text-slate-500">
 					{formatDate(sender.timeStamp)}
 				</p>
 			</div>
@@ -86,7 +83,7 @@ function CommentCreator({ cardId, allComments }) {
 			{isOpen ? (
 				<form>
 					<input
-						type='text'
+						type="text"
 						onChange={(e) =>
 							setData(
 								createComment(
@@ -97,16 +94,16 @@ function CommentCreator({ cardId, allComments }) {
 								)
 							)
 						}
-						className='p-1'
-						placeholder='Type a comment...'
+						className="p-1"
+						placeholder="Type a comment..."
 					/>
 					<input
-						type='button'
+						type="button"
 						onClick={(e) => {
 							e.preventDefault();
 							setIsSubmitting(!isSubmitting);
 						}}
-						className='rounded-full p-2 bg-black text-white'
+						className="rounded-full p-2 bg-black text-white"
 						value={data.content.length > 0 ? "Submit" : "Cancel"}
 					/>
 				</form>
@@ -117,7 +114,8 @@ function CommentCreator({ cardId, allComments }) {
 					}}
 					className={
 						"p-2 px-4 bg-yellow border-2 border-black rounded-xl font-extrabold "
-					}>
+					}
+				>
 					+
 				</button>
 			)}
@@ -127,12 +125,9 @@ function CommentCreator({ cardId, allComments }) {
 
 function CommentRenderer({ comments }) {
 	return (
-		<div className='flex flex-col gap-4'>
+		<div className="flex flex-col gap-4">
 			{comments.map((comment) => (
-				<Comment
-					key={"comment-" + comment._id}
-					sender={comment}
-				/>
+				<Comment key={"comment-" + comment._id} sender={comment} />
 			))}
 		</div>
 	);
@@ -140,7 +135,7 @@ function CommentRenderer({ comments }) {
 
 function MembersIcons({ members }) {
 	return (
-		<div className='flex h-8'>
+		<div className="flex h-8">
 			{members.length > 0 ? (
 				members.map((member) => (
 					<ProfilePicture
@@ -149,7 +144,7 @@ function MembersIcons({ members }) {
 					/>
 				))
 			) : (
-				<h1 className='ml-4'>no members :(</h1>
+				<h1 className="ml-4">no members :(</h1>
 			)}
 		</div>
 	);
@@ -161,7 +156,6 @@ export function OpenedCard() {
 	const { data: index } = useSWR("/api/index/", fetcher);
 	const { data: lists } = useSWR("/api/lists/", fetcher);
 
-	console.log(data);
 
 	const [isTitleModalOpen, setIsTitleModalOpen] = useState(false);
 	const [isDescModalOpen, setIsDescModalOpen] = useState(false);
@@ -172,8 +166,9 @@ export function OpenedCard() {
 	const ActionButton = ({ children, onClick }) => {
 		return (
 			<button
-				className='bg-red border-black border-2 w-[20rem] p-1'
-				onClick={onClick ? onClick : null}>
+				className="bg-red border-black border-2 w-[20rem] p-1"
+				onClick={onClick ? onClick : null}
+			>
 				<h4>{children}</h4>
 			</button>
 		);
@@ -183,28 +178,18 @@ export function OpenedCard() {
 
 	const timeState = getTimeState(data.dueDate);
 
+
 	return (
 		<>
-			<Head>
-				<title>{data.title}</title>
-			</Head>
+			<PageMeta title={data.title} description={data.description} />
 			<div className={!isTitleModalOpen && "hidden"}>
-				<TitleUpdater
-					data={data}
-					setShown={setIsTitleModalOpen}
-				/>
+				<TitleUpdater data={data} setShown={setIsTitleModalOpen} />
 			</div>
 			<div className={!isDescModalOpen && "hidden"}>
-				<DescriptionUpdater
-					data={data}
-					setShown={setIsDescModalOpen}
-				/>
+				<DescriptionUpdater data={data} setShown={setIsDescModalOpen} />
 			</div>
 			<div className={!isDueDateModalOpen && "hidden"}>
-				<DueDateUpdater
-					data={data}
-					setShown={setIsDueDateModalOpen}
-				/>
+				<DueDateUpdater data={data} setShown={setIsDueDateModalOpen} />
 			</div>
 
 			<div className={!isListModalOpen && "hidden"}>
@@ -217,14 +202,15 @@ export function OpenedCard() {
 				/>
 			</div>
 
-			<div className={!isArchiveModalOpen && "hidden"}>
+			{isArchiveModalOpen && (
 				<ArchiveUpdater
 					data={data}
 					cardList={cardList.cards}
+					boardId={cardList.boardId}
 					index={index}
 					setShown={setIsArchiveModalOpen}
 				/>
-			</div>
+			)}
 
 			<div
 				className={
@@ -235,10 +221,11 @@ export function OpenedCard() {
 					(timeState === 0 ? " border-orange-500 border-4" : "") +
 					(timeState === 1 ? " border-[green] border-4" : "") +
 					(data.isArchived ? " border-l-[yellow] border-l-8" : "")
-				}>
-				<div className='w-[75%]'>
-					<div className='flex flex-row'>
-						<h1 className='closed-card-title'>
+				}
+			>
+				<div className="w-[75%]">
+					<div className="flex flex-row">
+						<h1 className="closed-card-title">
 							{data.title} &#9679;
 						</h1>
 						<MembersIcons members={data.members} />
@@ -249,17 +236,18 @@ export function OpenedCard() {
 							{data.dueDate?.toLocaleString()}
 						</strong>
 					</h4>
-					<div className='text-lg border-black border-4 border-solid p-1 w-[100%]'>
-						<strong>Description:</strong>
+					<div className="text-lg border-black border-4 border-solid p-1 w-[100%]">
 						<h2 className={!data.isArchived && "hidden"}>
 							[ARCHIVED]
 						</h2>
+						<strong>Description:</strong>
+
 						<ReactMarkdown remarkPlugins={[remarkGfm]}>
 							{data.description}
 						</ReactMarkdown>
 					</div>
-					<div className='flex flex-row gap-1 mt-2'>
-						<h6 className='mt-2'>Comments:</h6>
+					<div className="flex flex-row gap-1 mt-2">
+						<h6 className="mt-2">Comments:</h6>
 						<CommentCreator
 							cardId={data._id}
 							allComments={data.comments}
@@ -267,39 +255,44 @@ export function OpenedCard() {
 					</div>
 					<CommentRenderer comments={data.comments} />
 				</div>
-				<div className='flex flex-col gap-2'>
-					<ActionButton onClick={() => {}}>Add Members</ActionButton>
+				<div className="flex flex-col gap-2">
+					<ActionButton onClick={() => {}}>Start Working</ActionButton>
 					<ActionButton
 						onClick={() => {
 							setIsTitleModalOpen(!isTitleModalOpen);
-						}}>
+						}}
+					>
 						Set Title
 					</ActionButton>
 					<ActionButton
 						onClick={() => {
 							setIsDescModalOpen(!isDescModalOpen);
-						}}>
+						}}
+					>
 						Set Description
 					</ActionButton>
 					<ActionButton
 						onClick={() =>
 							setIsDueDateModalOpen(!isDueDateModalOpen)
-						}>
+						}
+					>
 						Set Due Date
 					</ActionButton>
 					<ActionButton
-						onClick={() => setIsListModalOpen(!isListModalOpen)}>
+						onClick={() => setIsListModalOpen(!isListModalOpen)}
+					>
 						Change List
 					</ActionButton>
 					<ActionButton
 						onClick={() =>
 							setIsArchiveModalOpen(!isArchiveModalOpen)
-						}>
-						{data.archived ? "Unarchive" : "Archive"}
+						}
+					>
+						{data.isArchived ? "Unarchive" : "Archive"}
 					</ActionButton>
 					<ActionButton>
 						<Link href={`/boards/${cardList.boardId}`}>
-							<a className='text-black'>
+							<a className="text-black">
 								<h4>Close Card</h4>
 							</a>
 						</Link>
@@ -347,21 +340,26 @@ export function ClosedCard({ data, cardList, index }) {
 				// Remove this copy from the list
 				cardList.splice(index, 1);
 
-				// Data Transfer 
+				// Data Transfer
 				setIsDragging(true);
 				event.dataTransfer.setData("id", JSON.stringify(data._id));
-				event.dataTransfer.setData("listId", JSON.stringify(data.listId));
+				event.dataTransfer.setData(
+					"listId",
+					JSON.stringify(data.listId)
+				);
 				event.dataTransfer.effectAllowed = "move";
 			}}
-			onDragEnd={(_) => setIsDragging(false)}>
-			<p className='closed-card-title leading-4 text-black'>
+			onDragEnd={(_) => setIsDragging(false)}
+		>
+			<p className="closed-card-title leading-4 text-black">
 				{data.title}
 			</p>
 			<p
 				className={
 					"text-xs text-slate-500 " +
 					(timeState === -1 ? "text-[white]" : "")
-				}>
+				}
+			>
 				{(timeState === -1 ? "LATE " : "") +
 					data.creationDate.toLocaleString("en-US", {
 						month: "numeric",

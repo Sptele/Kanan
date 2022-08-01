@@ -1,11 +1,13 @@
 import CardCreator from "../../../components/creators/CardCreator";
+import PageMeta from "../../../components/PageMeta";
 import { getAllLists } from "../../../db/list";
 
 export default function New({ listId }) {
 	return (
-		<CardCreator
-			listId={listId}
-		/>
+		<>
+			<PageMeta title="New Card" description="Create a new card" />
+			<CardCreator listId={listId} />
+		</>
 	);
 }
 
@@ -20,7 +22,7 @@ export async function getStaticPaths() {
 export async function getStaticProps({ params }) {
 	return {
 		props: {
-			listId: params.listId
+			listId: params.listId,
 		},
 	};
 }
