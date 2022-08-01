@@ -1,10 +1,8 @@
-import { ClosedCard } from "./card";
+import ClosedCard from "./ClosedCard";
 import getTimeState from "../util/get-time-state";
-import { useState, useContext, useReducer } from "react";
-import { LRContext, CallbackContext } from "../pages/boards/[id]";
+import { useState, useContext } from "react";
+import { CallbackContext } from "../pages/boards/[id]";
 import Link from "next/link";
-import { fixDates } from "../util/dates";
-import { list } from "postcss";
 
 function CardRenderer({ cards, id }) {
 	return (

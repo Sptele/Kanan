@@ -3,6 +3,7 @@ import {
 	insertMember,
 	updateMember,
 	replaceMember,
+	
 	getMember,
 } from "../../db/member";
 
@@ -30,7 +31,7 @@ export default async function handler(req, res) {
 async function get(req, res) {
 	try {
 		// Get data
-		const response = await getMember({ _id: req.body });
+		const response = await getMember({ isSignedIn: true });
 
 		// Return with what was sent with status code 200
 		res.status(200)

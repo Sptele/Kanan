@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Layout from "../components/Layout";
 import ProfilePicture from "../components/ProfilePicture";
-import { getAllMembers } from "../db/member";
+import { getMember } from "../db/member";
 import { createMember } from "../util/creation-factory";
 import { useState } from "react";
 import { getAllBoards } from "../db/board";
@@ -11,7 +11,7 @@ import fetcher from "../util/fetcher";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 
-function CreateMember({ setShown, currMember, allMembers }) {
+function CreateMember({ setShown, currMember }) {
 	const [data, setData] = useState(currMember);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const router = useRouter();
@@ -19,7 +19,6 @@ function CreateMember({ setShown, currMember, allMembers }) {
 	useEffect(() => {
 		if (!isSubmitting) return;
 
-		console.log(data)
 
 		const runner = async () => {
 			await fetch("/api/member", {
@@ -38,7 +37,6 @@ function CreateMember({ setShown, currMember, allMembers }) {
 
 		runner();
 
-		allMembers.push(data);
 		setShown(false);
 	}, [isSubmitting]);
 
@@ -189,21 +187,18 @@ function Profile() {
 	const [isOpen, setIsOpen] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 
-	const { data: all } = useSWR("/api/members/", fetcher);
+	const { data: member } = useSWR("/api/member-signed/", fetcher);
 	const { data: boards } = useSWR("/api/boards/", fetcher);
 
 	if (!all || !boards) {
 		return <h1>Unable to connect to Database. Try again...</h1>;
 	}
 
-	const member = all.find((member) => member.isSignedIn);
-
 	if (isOpen) {
 		return (
 			<CreateMember
 				setShown={setIsOpen}
 				currMember={member}
-				allMembers={all}
 			/>
 		);
 	}
@@ -263,13 +258,13 @@ export default function Page({ fallback }) {
 }
 
 export async function getStaticProps() {
-	const all = await getAllMembers();
+	const member = await getMember({ isSignedIn: true });
 	const boards = await getAllBoards();
 
 	return {
 		props: {
 			fallback: {
-				"/api/members/": all,
+				"/api/member-signed/": member,
 				"/api/boards/": boards,
 			},
 		},

@@ -24,7 +24,6 @@ export async function getStaticPaths() {
 
 export async function getStaticProps({ params }) {
 	const list = await getList({ _id: params.id });
-	console.log(list);
 
 	return {
 		props: {
