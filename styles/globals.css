@@ -187,4 +187,13 @@
 			transform: translateX(0);
 		}
 	}
+
+	.hover-red:hover {
+		@apply bg-red;
+		@apply text-white
+	}
+
+	button.no-highlight:focus {
+		@apply outline-none;
+	}
 }

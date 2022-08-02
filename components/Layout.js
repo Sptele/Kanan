@@ -14,7 +14,7 @@ export default function Layout({ title, description, children }) {
 			<div className='bg-teal min-h-screen grid grid-rows-board'>
 				<Link href='/profile'>
 					<a onClick={() => setShown(true)}>
-						<h1 className='text-center text-black'>Kanan</h1>
+						<h1 className='text-center text-black p-4'>Kanan</h1>
 					</a>
 				</Link>
 				<div className='bg-green rounded-t-3xl p-4'>{children}</div>
