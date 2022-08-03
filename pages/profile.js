@@ -173,16 +173,17 @@ function MemberShow({ member }) {
 
 function ClosedBoard({ board, isDeleting, showLoader }) {
 	const [meDelete, setMeDelete] = useState(false);
+	const router = useRouter();
 
 	useEffect(() => {
 		if (!isDeleting) return;
 		if (!meDelete) return;
 
 		const confirmed = prompt(
-			`Are you sure you want to delete this board? Type"${board.title}" to confirm.`
+			`Are you sure you want to delete this board? Type "${board.title}" to confirm.`
 		);
 
-		if (!confirmed) {
+		if (confirmed !== board.title) {
 			setMeDelete(false);
 			return;
 		}
@@ -193,8 +194,10 @@ function ClosedBoard({ board, isDeleting, showLoader }) {
 				headers: {
 					"Content-Type": "application/json",
 				},
-				body: JSON.stringify({ id: board._id }),
+				body: JSON.stringify({ _id: board._id }),
 			});
+
+			router.reload("/profile");
 		};
 
 		runner();

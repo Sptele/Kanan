@@ -31,7 +31,7 @@ export default function List({ title, id, cards, lists }) {
 	const forceUpdate = useContext(CallbackContext);
 
 	let bgColor = "bg-black";
-	cards.forEach((card, i) => {
+	cards.filter((card) => !card.isArchived).forEach((card, i) => {
 		card.creationDate = new Date(card.creationDate);
 		card.dueDate = new Date(card.dueDate);
 
@@ -45,6 +45,7 @@ export default function List({ title, id, cards, lists }) {
 
 	return (
 		<div
+			className={"rounded-xl shadow" + (isOpen ? " " : " relative max-h-[75vh] ")}
 			onDragOver={(event) => event.preventDefault()}
 			onDrop={(event) => {
 				// Grab the event data
@@ -108,8 +109,7 @@ export default function List({ title, id, cards, lists }) {
 							}>
 							<Link href={`/cards/new/${id}`}>
 								<a className='text-white'>
-									{" "}
-									{cards.length > 0 ? cards.length : "+"}
+									{cards.filter((card) => !card.isArchived).length > 0 ? cards.length : "+"}
 								</a>
 							</Link>
 						</h6>

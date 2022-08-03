@@ -141,7 +141,7 @@ function MembersIcons({ members }) {
 					/>
 				))
 			) : (
-				<h1 className="ml-4">no members :(</h1>
+				<h1 className="ml-4">waiting... 😴</h1>
 			)}
 		</div>
 	);
@@ -154,6 +154,7 @@ export function OpenedCard() {
 	const { data: index } = useSWR("/api/index/", fetcher);
 	const { data: lists } = useSWR("/api/lists/", fetcher);
 
+	const [isWorking, setIsWorking] = useState(false);
 	const [isTitleModalOpen, setIsTitleModalOpen] = useState(false);
 	const [isDescModalOpen, setIsDescModalOpen] = useState(false);
 	const [isDueDateModalOpen, setIsDueDateModalOpen] = useState(false);
@@ -174,9 +175,32 @@ export function OpenedCard() {
 	fixDates(data);
 	const timeState = getTimeState(data.dueDate);
 
+	useEffect(() => {
+		if (!isWorking) return;
+
+		data.members.push(member);
+
+		const runner = async () => {
+			await fetcher('/api/card/', {
+				method: "PATCH",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					query: { _id: data._id },
+					update: { members: data.members },
+				})
+			});
+		};
+
+		runner();
+		
+		setIsWorking(false);
+	})
+
 	return (
 		<>
-			<PageMeta title={data.title} description={data.description} />
+			<PageMeta title={"Kanan - " + data.title} description={"Card Description: " + data.description} />
 			<div className={!isTitleModalOpen && "hidden"}>
 				<TitleUpdater data={data} setShown={setIsTitleModalOpen} />
 			</div>
@@ -221,7 +245,7 @@ export function OpenedCard() {
 				<div className="w-[75%]">
 					<div className="flex flex-row">
 						<h1 className="closed-card-title">
-							{data.title} &#9679;
+							{data.title} &#9679;{" "}
 						</h1>
 						<MembersIcons members={data.members} />
 					</div>
@@ -251,7 +275,7 @@ export function OpenedCard() {
 					<CommentRenderer comments={data.comments} />
 				</div>
 				<div className="flex flex-col gap-2">
-					<ActionButton onClick={() => {}}>
+					<ActionButton onClick={() => setIsWorking(!isWorking)}>
 						Start Working
 					</ActionButton>
 					<ActionButton
@@ -318,8 +342,6 @@ export async function getStaticProps({ params }) {
 	const member = await getMember({ isSignedIn: true });
 	const cardList = allLists.filter((list) => list._id === data.listId)[0];
 	const index = cardList.cards.findIndex((card) => card._id === data._id);
-
-	console.log(member);
 
 	return {
 		props: {

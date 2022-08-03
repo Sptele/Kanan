@@ -26,7 +26,8 @@ export default function ClosedCard({ data, cardList, index }) {
 				(timeState === -1 ? " bg-rose-600" : "") +
 				(timeState === 0 ? " border-l-orange-500 border-l-4" : "") +
 				(timeState === 1 ? " border-l-[green] border-l-4" : "") +
-				(isDragging ? " cursor-grabbing horizontal-shake" : "")
+				(isDragging ? " cursor-grabbing horizontal-shake" : "") +
+				(data.members.length > 0 ? " border-orange-500 border-x-4" : "")
 			}
 			draggable
 			onDragStart={(event) => {
@@ -53,7 +54,7 @@ export default function ClosedCard({ data, cardList, index }) {
 					(timeState === -1 ? "text-[white]" : "")
 				}
 			>
-				{(timeState === -1 ? "LATE " : "") +
+				{(data.members.length > 0 ? "[WORKING] " : "") + (timeState === -1 ? "[LATE] " : "") +
 					data.creationDate.toLocaleString("en-US", {
 						month: "numeric",
 						day: "numeric",
